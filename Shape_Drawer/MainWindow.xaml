@@ -1,0 +1,26 @@
+﻿<Window x:Class="Shape_Drawer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Shape_Drawer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button Name="DrawALineButton" Content="Draw a line" Height="50" Margin="10"></Button>
+            <Button Name="DrawACircleButton" Content="Draw a circle" Height="50" Margin="10"></Button>
+            <Button Name="AntialiasingButton" Content="Antialias" Height="50" Margin="10"></Button>
+            <Button Name="SaveToFileButton" Content="Save figures" Height="50" Margin="10"></Button>
+            <ComboBox Name="ShapeColorComboBox" Height="50" Margin="10"></ComboBox>
+
+        </StackPanel>
+        <Canvas Grid.Row="1">
+            
+        </Canvas>
+    </Grid>
+</Window>
