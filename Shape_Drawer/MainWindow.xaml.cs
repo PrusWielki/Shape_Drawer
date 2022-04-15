@@ -20,9 +20,32 @@ namespace Shape_Drawer
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        public IEnumerable<KeyValuePair<String, Color>> NamedColors
+        {
+            get;
+            private set;
+        }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            this.NamedColors = this.GetColors();
+
+            this.DataContext = this;
+
+
+        }
+
+        private IEnumerable<KeyValuePair<String, Color>> GetColors()
+        {
+            return typeof(Colors)
+                .GetProperties()
+                .Where(prop =>
+                    typeof(Color).IsAssignableFrom(prop.PropertyType))
+                .Select(prop =>
+                    new KeyValuePair<String, Color>(prop.Name, (Color)prop.GetValue(null)));
         }
     }
 }

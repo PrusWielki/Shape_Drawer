@@ -16,7 +16,21 @@
             <Button Name="DrawACircleButton" Content="Draw a circle" Height="50" Margin="10"></Button>
             <Button Name="AntialiasingButton" Content="Antialias" Height="50" Margin="10"></Button>
             <Button Name="SaveToFileButton" Content="Save figures" Height="50" Margin="10"></Button>
-            <ComboBox Name="ShapeColorComboBox" Height="50" Margin="10"></ComboBox>
+            <ComboBox Name="ShapeColorComboBox" Height="50" Margin="10" ItemsSource="{Binding NamedColors}"
+              xmlns:converters="clr-namespace:Shape_Drawer">
+                <ComboBox.Resources>
+                    <converters:ColorToSolidBrushConverter x:Key="ColorToBrush"/>
+                </ComboBox.Resources>
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Border BorderThickness="0" Height="20" Width="20" 
+                            Background="{Binding Value, Converter={StaticResource ColorToBrush}}"/>
+                            <TextBlock Text="{Binding Key}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
         </StackPanel>
         <Canvas Grid.Row="1">
