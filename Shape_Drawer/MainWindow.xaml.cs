@@ -47,5 +47,16 @@ namespace Shape_Drawer
                 .Select(prop =>
                     new KeyValuePair<String, Color>(prop.Name, (Color)prop.GetValue(null)));
         }
+
+        private void backgroundImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show("XDXD");
+            System.Windows.Point p = e.GetPosition(backgroundImage);
+            double pixelWidth = backgroundImage.Source.Width;
+            double pixelHeight = backgroundImage.Source.Height;
+            double x = pixelWidth * p.X / backgroundImage.ActualWidth;
+            double y = pixelHeight * p.Y / backgroundImage.ActualHeight;
+            MessageBox.Show(x + ", " + y);
+        }
     }
 }
