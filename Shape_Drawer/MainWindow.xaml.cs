@@ -28,6 +28,7 @@ namespace Shape_Drawer
     {
         None,
         Line,
+        ThickLine,
         Circle,
 
     }
@@ -38,6 +39,7 @@ namespace Shape_Drawer
         bool isASet;
         bool isBSet;
         SymmetricLine symmetric = new SymmetricLine();
+        MidpointCircle midpoint = new MidpointCircle();
 
         Mode mode=Mode.None;
 
@@ -130,6 +132,13 @@ namespace Shape_Drawer
                         mode = Mode.None;
 
                     }
+                    else if (mode == Mode.Circle)
+                    {
+                        imageDrawing = midpoint.Draw(a, b, imageDrawing);
+                        backgroundImage.Source = ToWpfImage(imageDrawing);
+                        mode = Mode.None;
+
+                    }
 
                 }
 
@@ -141,6 +150,16 @@ namespace Shape_Drawer
         private void DrawALineButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Line;
+        }
+
+        private void DrawAThickLineButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.ThickLine;
+        }
+
+        private void DrawACircleButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.Circle;
         }
     }
 }
