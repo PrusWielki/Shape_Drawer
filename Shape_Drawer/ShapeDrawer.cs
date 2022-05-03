@@ -42,43 +42,61 @@ namespace Shape_Drawer
             int dx = (int)(b.X - a.X);
             int dy = (int)(b.Y - a.Y);
 
-            int d = 2 * dy - dx;
-            int dE = 2 * dy;
-            int dNE = 2 * (dy - dx);
+            int steps = Math.Abs(dx) > Math.Abs(dy) ? Math.Abs(dx) : Math.Abs(dy);
 
-            int xf = (int)a.X, yf = (int)a.Y;
-            int xb = (int)b.X, yb = (int)b.Y;
-
-            buffer[yf * srcData.Stride + xf * 4] = (byte)0;
-            buffer[yf * srcData.Stride + xf * 4+1] = (byte)0;
-            buffer[yf * srcData.Stride + xf * 4+2] = (byte)0;
+            float Xinc = dx / (float)steps;
+            float Yinc = dy / (float)steps;
 
 
-            buffer[yb * srcData.Stride + xb * 4] = (byte)0;
-            buffer[yb * srcData.Stride + xb * 4 + 1] = (byte)0;
-            buffer[yb * srcData.Stride + xb * 4 + 2] = (byte)0;
-
-
-            while (xf < xb)
+            float xp = (int)a.X;
+            float yp = (int)a.Y;
+            for(int i = 0; i <= steps; i++)
             {
-                ++xf; --xb;
-                if (d < 0)
-                    d += dE;
-                else
-                {
-                    d += dNE;
-                    ++yf;
-                    --yb;
-                }
-                buffer[yf * srcData.Stride + xf * 4] = (byte)0;
-                buffer[yf * srcData.Stride + xf * 4 + 1] = (byte)0;
-                buffer[yf * srcData.Stride + xf * 4 + 2] = (byte)0;
+                buffer[(int)Math.Round(yp) * srcData.Stride + (int)Math.Round(xp) * 4] = (byte)0;
+                buffer[(int)Math.Round(yp) * srcData.Stride + (int)Math.Round(xp) * 4 + 1] = (byte)0;
+                buffer[(int)Math.Round(yp) * srcData.Stride + (int)Math.Round(xp) * 4 + 2] = (byte)0;
+                xp += Xinc;
+                yp += Yinc;
 
-
-                buffer[yb * srcData.Stride + xb * 4] = (byte)0;
-                buffer[yb * srcData.Stride + xb * 4 + 1] = (byte)0;
-                buffer[yb * srcData.Stride + xb * 4 + 2] = (byte)0;
             }
+
+            //int d = 2 * dy - dx;
+            //int dE = 2 * dy;
+            //int dNE = 2 * (dy - dx);
+
+            //int xf = (int)a.X, yf = (int)a.Y;
+            //int xb = (int)b.X, yb = (int)b.Y;
+
+            //buffer[yf * srcData.Stride + xf * 4] = (byte)0;
+            //buffer[yf * srcData.Stride + xf * 4+1] = (byte)0;
+            //buffer[yf * srcData.Stride + xf * 4+2] = (byte)0;
+
+
+            //buffer[yb * srcData.Stride + xb * 4] = (byte)0;
+            //buffer[yb * srcData.Stride + xb * 4 + 1] = (byte)0;
+            //buffer[yb * srcData.Stride + xb * 4 + 2] = (byte)0;
+
+
+            //while (xf < xb)
+            //{
+            //    ++xf; --xb;
+            //    if (d < 0)
+            //        d += dE;
+            //    else
+            //    {
+            //        d += dNE;
+            //        ++yf;
+            //        --yb;
+            //    }
+            //    buffer[yf * srcData.Stride + xf * 4] = (byte)0;
+            //    buffer[yf * srcData.Stride + xf * 4 + 1] = (byte)0;
+            //    buffer[yf * srcData.Stride + xf * 4 + 2] = (byte)0;
+
+
+            //    buffer[yb * srcData.Stride + xb * 4] = (byte)0;
+            //    buffer[yb * srcData.Stride + xb * 4 + 1] = (byte)0;
+            //    buffer[yb * srcData.Stride + xb * 4 + 2] = (byte)0;
+            //}
 
 
             //create a new bitmap with changed pixel rgb values
