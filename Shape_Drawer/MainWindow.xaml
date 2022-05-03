@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shape_Drawer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="1000" Width="1000">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100"></RowDefinition>
@@ -19,6 +19,7 @@
             <Button Name="SaveToFileButton" Content="Save figures" Height="50" Margin="10"></Button>
             <Button Name="DeleteButton" Content="Deletion mode" Height="50" Margin="10" Click="DeleteButton_Click"></Button>
             <Button Name="RemoveAllButton" Content="Remove All Shapes" Height="50" Margin="10" Click="RemoveAllButton_Click"></Button>
+            <Button Name="PositionButton" Content="Edit Position" Height="50" Margin="10" Click="PositionButton_Click"></Button>
             <ComboBox Name="ShapeColorComboBox" Height="50" Margin="10" ItemsSource="{Binding NamedColors}"
               xmlns:converters="clr-namespace:Shape_Drawer">
                 <ComboBox.Resources>

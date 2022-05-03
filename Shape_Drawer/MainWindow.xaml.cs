@@ -31,12 +31,18 @@ namespace Shape_Drawer
         ThickLine,
         Circle,
         Deletion,
+        Position,
 
     }
     public partial class MainWindow : Window
     {
         System.Windows.Point a;
         System.Windows.Point b;
+
+        System.Windows.Point changePositionA;
+        System.Windows.Point changePositionB;
+
+
         bool isASet;
         bool isBSet;
         List<ShapeDrawer> shapes=new List<ShapeDrawer>();
@@ -121,6 +127,7 @@ namespace Shape_Drawer
 
 
                     }
+    
                    
                     return true;
                 }
@@ -138,6 +145,7 @@ namespace Shape_Drawer
             ConvertToDrawing(backgroundImage);
             foreach(var shape in shapes)
             {
+                shape.GetPoints();
                 imageDrawing=shape.Draw(imageDrawing);
 
             }
@@ -147,6 +155,29 @@ namespace Shape_Drawer
             {
                 backgroundImage.Source = new BitmapImage(new Uri("../../../transparent.png", UriKind.RelativeOrAbsolute));
             }
+
+        }
+        private void ChangePosition()
+        {
+
+            
+            System.Windows.Point difference = new System.Windows.Point((int)(b.X - a.X), (int)(b.Y - a.Y));
+            foreach (var shape in shapes)
+            {
+
+                if (shape.points.Contains(new System.Windows.Point((int)a.X,(int)a.Y)))
+                {
+                    //MessageBox.Show("XD");
+                    shape.TransformPoints(difference);
+                  //  shape.
+                    //for (int i=0;i<shape.points.Count;i++)
+                    //{
+                    //    shape.points[i] = new System.Windows.Point(shape.points[i].X + difference.X, shape.points[i].Y+ difference.Y);
+                    //}
+                }
+
+            }
+            DrawShapes();
 
         }
 
@@ -166,6 +197,7 @@ namespace Shape_Drawer
                 {
                     a = new System.Windows.Point(x, y);
                     isASet = true;
+                    //MessageBox.Show("XD");
                 }
                 else if (!isBSet)
                 {
@@ -193,6 +225,10 @@ namespace Shape_Drawer
                         //backgroundImage.Source = ToWpfImage(imageDrawing);
                         mode = Mode.None;
 
+                    }
+                    else if (mode == Mode.Position)
+                    {
+                        ChangePosition();
                     }
                     DrawShapes();
                 }
@@ -226,6 +262,11 @@ namespace Shape_Drawer
         {
             shapes.Clear();
             DrawShapes();
+        }
+
+        private void PositionButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.Position;
         }
     }
 }
