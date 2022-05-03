@@ -221,5 +221,11 @@ namespace Shape_Drawer
         {
             mode = Mode.Deletion;
         }
+
+        private void RemoveAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            shapes.Clear();
+            DrawShapes();
+        }
     }
 }
