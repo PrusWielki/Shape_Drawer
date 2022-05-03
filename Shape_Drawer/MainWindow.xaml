@@ -33,7 +33,7 @@
             </ComboBox>
 
         </StackPanel>
-        <Image Grid.Row="1" Name="backgroundImage" Source="transparent.png" MouseLeftButtonDown="backgroundImage_MouseLeftButtonDown">
+        <Image Grid.Row="1" Stretch="UniformToFill" Name="backgroundImage" Source="transparent.png" MouseLeftButtonDown="backgroundImage_MouseLeftButtonDown">
             
         </Image>
     </Grid>

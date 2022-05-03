@@ -39,10 +39,10 @@ namespace Shape_Drawer
 
             int current = 0;
 
-            int dx = (int)(a.X - b.X);
-            int dy = (int)(a.Y - b.Y);
+            int dx = (int)(b.X - a.X);
+            int dy = (int)(b.Y - a.Y);
 
-            int d = 2 * dx - dy;
+            int d = 2 * dy - dx;
             int dE = 2 * dy;
             int dNE = 2 * (dy - dx);
 

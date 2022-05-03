@@ -57,6 +57,7 @@ namespace Shape_Drawer
             this.NamedColors = this.GetColors();
 
             this.DataContext = this;
+            ConvertToDrawing(backgroundImage);
 
 
         }
@@ -119,10 +120,11 @@ namespace Shape_Drawer
                 }
                 if (isASet && isBSet)
                 {
-
+                    isASet=false;
+                    isBSet=false;
                     if (mode == Mode.Line)
                     {
-                        ConvertToDrawing(backgroundImage);
+                        
                         imageDrawing = symmetric.Draw(a, b, imageDrawing);
                         backgroundImage.Source = ToWpfImage(imageDrawing);
                         mode = Mode.None;
