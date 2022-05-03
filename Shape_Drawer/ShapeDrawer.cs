@@ -13,13 +13,29 @@ namespace Shape_Drawer
 {
     internal abstract class ShapeDrawer
     {
-        abstract public Image Draw(Point a, Point b, Image imgSource);
+        public List<Point> points=new List<Point>();
+
+        protected Point a;
+        protected Point b;
+
+        protected ShapeDrawer(Point a, Point b)
+        {
+            this.a = a;
+            this.b = b;
+        }
+
+        abstract public Image Draw(Image imgSource);
+        
 
     }
-
+    
     internal class SymmetricLine : ShapeDrawer
     {
-        public override Image Draw(Point a, Point b, Image imgSource)
+
+        //public new List<Point> points = new List<Point>();
+
+        public SymmetricLine(Point a, Point b) : base(a, b) { }
+        public override Image Draw( Image imgSource)
         {
 
             int width = imgSource.Width;
@@ -27,7 +43,7 @@ namespace Shape_Drawer
             Bitmap newBitmap = (Bitmap)imgSource.Clone();
 
 
-            BitmapData srcData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            BitmapData srcData = newBitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
             //hold the amount of bytes needed to represent the image's pixels
             int bytes = srcData.Stride * srcData.Height;
             byte[] buffer = new byte[bytes];
@@ -37,26 +53,37 @@ namespace Shape_Drawer
             Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
             newBitmap.UnlockBits(srcData);
 
-            int current = 0;
+       
 
             int dx = (int)(b.X - a.X);
             int dy = (int)(b.Y - a.Y);
 
-            int steps = Math.Abs(dx) > Math.Abs(dy) ? Math.Abs(dx) : Math.Abs(dy);
 
-            float Xinc = dx / (float)steps;
-            float Yinc = dy / (float)steps;
+            int d = dy - (dx / 2);
+            int x = (int)a.X, y = (int)a.Y;
+
+            buffer[y * srcData.Stride + x * 4] = (byte)0;
+            buffer[y * srcData.Stride + x * 4 + 1] = (byte)0;
+            buffer[y * srcData.Stride + x * 4 + 2] = (byte)0;
+            points.Add(new Point(x, y));
 
 
-            float xp = (int)a.X;
-            float yp = (int)a.Y;
-            for(int i = 0; i <= steps; i++)
+            while (x < (int)b.X)
             {
-                buffer[(int)Math.Round(yp) * srcData.Stride + (int)Math.Round(xp) * 4] = (byte)0;
-                buffer[(int)Math.Round(yp) * srcData.Stride + (int)Math.Round(xp) * 4 + 1] = (byte)0;
-                buffer[(int)Math.Round(yp) * srcData.Stride + (int)Math.Round(xp) * 4 + 2] = (byte)0;
-                xp += Xinc;
-                yp += Yinc;
+                x++;
+
+                if (d < 0)
+                    d = d + dy;
+                else
+                {
+                    d += (dy - dx);
+                    y++;
+                }
+
+                buffer[y * srcData.Stride + x * 4] = (byte)0;
+                buffer[y * srcData.Stride + x * 4 + 1] = (byte)0;
+                buffer[y * srcData.Stride + x * 4 + 2] = (byte)0;
+                points.Add(new Point(x, y));
 
             }
 
@@ -117,7 +144,10 @@ namespace Shape_Drawer
     }
     internal class MidpointCircle : ShapeDrawer
     {
-        public override Image Draw(Point a, Point b, Image imgSource)
+        //public new List<Point> points=new List<Point>();
+
+        public MidpointCircle(Point a, Point b) : base(a, b) { }
+        public override Image Draw(Image imgSource)
         {
 
             int width = imgSource.Width;
@@ -150,24 +180,33 @@ namespace Shape_Drawer
             buffer[(int)(a.Y + y) * srcData.Stride + (int)(x + a.X) * 4 + 1] = (byte)0;
             buffer[(int)(a.Y + y) * srcData.Stride + (int)(x + a.X) * 4 + 2] = (byte)0;
 
+            points.Add(new Point((int)(x + a.X), (int)(a.Y + y)));
+
             buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4] = (byte)0;
             buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4 + 1] = (byte)0;
             buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4 + 2] = (byte)0;
 
-
+            points.Add(new Point((int)(-x + a.X), (int)(a.Y + y)));
 
             buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4] = (byte)0;
             buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 1] = (byte)0;
             buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 2] = (byte)0;
 
+            points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
+
+
             buffer[(int)(a.Y + x) * srcData.Stride + (int)(y + a.X) * 4] = (byte)0;
             buffer[(int)(a.Y + x) * srcData.Stride + (int)(y + a.X) * 4 + 1] = (byte)0;
             buffer[(int)(a.Y + x) * srcData.Stride + (int)(y + a.X) * 4 + 2] = (byte)0;
+
+            points.Add(new Point((int)(y + a.X), (int)(a.Y + x)));
 
 
             buffer[(int)(a.Y + x) * srcData.Stride + (int)(-y + a.X) * 4] = (byte)0;
             buffer[(int)(a.Y + x) * srcData.Stride + (int)(-y + a.X) * 4 + 1] = (byte)0;
             buffer[(int)(a.Y + x) * srcData.Stride + (int)(-y + a.X) * 4 + 2] = (byte)0;
+
+            points.Add(new Point((int)(-y + a.X), (int)(a.Y + x)));
 
             while (x>y)
             {
@@ -187,17 +226,27 @@ namespace Shape_Drawer
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(x + a.X) * 4 + 2] = (byte)0;
 
+                points.Add(new Point((int)(x + a.X), (int)(a.Y + y)));
+
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4] = (byte)0;
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4 + 2] = (byte)0;
+
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y + y)));
 
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 2] = (byte)0;
 
+
+                points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
+
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(-x + a.X) * 4] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(-x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(-x + a.X) * 4 + 2] = (byte)0;
+
+
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y - y)));
 
 
 
@@ -207,6 +256,8 @@ namespace Shape_Drawer
             buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4] = (byte)0;
             buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 1] = (byte)0;
             buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 2] = (byte)0;
+
+            points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
 
             int dE = 3;
             int dSE = 5 - 2 * R;
@@ -232,17 +283,25 @@ namespace Shape_Drawer
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(x + a.X) * 4 + 2] = (byte)0;
 
+                points.Add(new Point((int)(x + a.X), (int)(a.Y + y)));
+
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4] = (byte)0;
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y + y) * srcData.Stride + (int)(-x + a.X) * 4 + 2] = (byte)0;
+
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y + y)));
 
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(x + a.X) * 4 + 2] = (byte)0;
 
+                points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
+
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(-x + a.X) * 4] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(-x + a.X) * 4 + 1] = (byte)0;
                 buffer[(int)(a.Y - y) * srcData.Stride + (int)(-x + a.X) * 4 + 2] = (byte)0;
+
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y - y)));
 
 
 

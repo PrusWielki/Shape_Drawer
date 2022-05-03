@@ -38,8 +38,7 @@ namespace Shape_Drawer
         System.Windows.Point b;
         bool isASet;
         bool isBSet;
-        SymmetricLine symmetric = new SymmetricLine();
-        MidpointCircle midpoint = new MidpointCircle();
+        List<ShapeDrawer> shapes=new List<ShapeDrawer>();
 
         Mode mode=Mode.None;
 
@@ -60,6 +59,8 @@ namespace Shape_Drawer
 
             this.DataContext = this;
             ConvertToDrawing(backgroundImage);
+           
+
 
 
         }
@@ -99,14 +100,53 @@ namespace Shape_Drawer
             ix.EndInit();
             return ix;
         }
+
+        private bool shapeClicked(System.Windows.Point a)
+        {
+            foreach(var shape in shapes)
+            {
+                //MessageBox.Show(a.X+" "+a.Y);
+                //for(int i = 0; i < shape.points.Count; i++)
+                //{
+                //    MessageBox.Show(shape.points[i].X + " " + shape.points[i].Y);
+                //}
+                if (shape.points.Contains(a))
+                {
+                    MessageBox.Show("XD");
+                    return true;
+                }
+               
+                
+
+            }
+
+            return false;
+
+        }
+
+        private void DrawShapes()
+        {
+            ConvertToDrawing(backgroundImage);
+            foreach(var shape in shapes)
+            {
+                imageDrawing=shape.Draw(imageDrawing);
+
+            }
+
+            backgroundImage.Source = ToWpfImage(imageDrawing);
+
+        }
+
         private void backgroundImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Point p = e.GetPosition(backgroundImage);
+            
             // MessageBox.Show(p.X + ", " + p.Y);
             double pixelWidth = backgroundImage.Source.Width;
             double pixelHeight = backgroundImage.Source.Height;
             double x = pixelWidth * p.X / backgroundImage.ActualWidth;
             double y = pixelHeight * p.Y / backgroundImage.ActualHeight;
+            shapeClicked(new System.Windows.Point((int)x, (int)y));
             if (mode != Mode.None)
             {
                 if (!isASet)
@@ -126,20 +166,21 @@ namespace Shape_Drawer
                     isBSet=false;
                     if (mode == Mode.Line)
                     {
-                        
-                        imageDrawing = symmetric.Draw(a, b, imageDrawing);
-                        backgroundImage.Source = ToWpfImage(imageDrawing);
+                        shapes.Add(new SymmetricLine(a, b));
+                        //imageDrawing = shapes[shapes.Count-1].Draw( imageDrawing);
+                        //backgroundImage.Source = ToWpfImage(imageDrawing);
                         mode = Mode.None;
 
                     }
                     else if (mode == Mode.Circle)
                     {
-                        imageDrawing = midpoint.Draw(a, b, imageDrawing);
-                        backgroundImage.Source = ToWpfImage(imageDrawing);
+                        shapes.Add(new MidpointCircle(a, b));
+                        //imageDrawing = shapes[shapes.Count - 1].Draw(imageDrawing);
+                        //backgroundImage.Source = ToWpfImage(imageDrawing);
                         mode = Mode.None;
 
                     }
-
+                    DrawShapes();
                 }
 
             }
