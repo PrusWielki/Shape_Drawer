@@ -30,6 +30,7 @@ namespace Shape_Drawer
         Line,
         ThickLine,
         Circle,
+        Deletion,
 
     }
     public partial class MainWindow : Window
@@ -112,7 +113,15 @@ namespace Shape_Drawer
                 //}
                 if (shape.points.Contains(a))
                 {
-                    MessageBox.Show("XD");
+                    if (mode == Mode.Deletion)
+                    {
+                        shapes.Remove(shape);
+                        DrawShapes();
+                        break;
+
+
+                    }
+                   
                     return true;
                 }
                
@@ -132,8 +141,12 @@ namespace Shape_Drawer
                 imageDrawing=shape.Draw(imageDrawing);
 
             }
-
-            backgroundImage.Source = ToWpfImage(imageDrawing);
+            if (shapes.Count > 0)
+                backgroundImage.Source = ToWpfImage(imageDrawing);
+            else
+            {
+                backgroundImage.Source = new BitmapImage(new Uri("../../../transparent.png", UriKind.RelativeOrAbsolute));
+            }
 
         }
 
@@ -160,6 +173,7 @@ namespace Shape_Drawer
                     isBSet = true;
 
                 }
+              
                 if (isASet && isBSet)
                 {
                     isASet=false;
@@ -201,6 +215,11 @@ namespace Shape_Drawer
         private void DrawACircleButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Circle;
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.Deletion;
         }
     }
 }

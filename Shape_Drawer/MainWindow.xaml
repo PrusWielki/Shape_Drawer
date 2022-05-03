@@ -17,6 +17,7 @@
             <Button Name="DrawACircleButton" Content="Draw a circle" Height="50" Margin="10" Click="DrawACircleButton_Click"></Button>
             <Button Name="AntialiasingButton" Content="Antialias" Height="50" Margin="10"></Button>
             <Button Name="SaveToFileButton" Content="Save figures" Height="50" Margin="10"></Button>
+            <Button Name="DeleteButton" Content="Deletion mode" Height="50" Margin="10" Click="DeleteButton_Click"></Button>
             <ComboBox Name="ShapeColorComboBox" Height="50" Margin="10" ItemsSource="{Binding NamedColors}"
               xmlns:converters="clr-namespace:Shape_Drawer">
                 <ComboBox.Resources>
