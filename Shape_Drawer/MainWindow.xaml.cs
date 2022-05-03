@@ -32,12 +32,16 @@ namespace Shape_Drawer
         Circle,
         Deletion,
         Position,
+        ChangeThickness,
+
 
     }
     public partial class MainWindow : Window
     {
-        System.Windows.Point a;
-        System.Windows.Point b;
+        Point a;
+        Point b;
+
+        int howThicc=1;
 
         System.Windows.Point changePositionA;
         System.Windows.Point changePositionB;
@@ -83,6 +87,8 @@ namespace Shape_Drawer
         }
         private void ConvertToDrawing(System.Windows.Controls.Image img)
         {
+            if (img == null)
+                return;
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
             System.Windows.Media.Imaging.BmpBitmapEncoder bbe = new BmpBitmapEncoder();
             if (null != img.Source)
@@ -108,7 +114,7 @@ namespace Shape_Drawer
             return ix;
         }
 
-        private bool shapeClicked(System.Windows.Point a)
+        private bool shapeClicked(Point a)
         {
             foreach(var shape in shapes)
             {
@@ -143,9 +149,12 @@ namespace Shape_Drawer
         private void DrawShapes()
         {
             ConvertToDrawing(backgroundImage);
+            if (backgroundImage == null)
+                return;
             foreach(var shape in shapes)
             {
                 shape.GetPoints();
+                //shape.Thicc(howThicc);
                 imageDrawing=shape.Draw(imageDrawing);
 
             }
@@ -161,11 +170,11 @@ namespace Shape_Drawer
         {
 
             
-            System.Windows.Point difference = new System.Windows.Point((int)(b.X - a.X), (int)(b.Y - a.Y));
+            Point difference = new Point((int)(b.X - a.X), (int)(b.Y - a.Y));
             foreach (var shape in shapes)
             {
 
-                if (shape.points.Contains(new System.Windows.Point((int)a.X,(int)a.Y)))
+                if (shape.points.Contains(new Point((int)a.X,(int)a.Y)))
                 {
                     //MessageBox.Show("XD");
                     shape.TransformPoints(difference);
@@ -190,18 +199,39 @@ namespace Shape_Drawer
             double pixelHeight = backgroundImage.Source.Height;
             double x = pixelWidth * p.X / backgroundImage.ActualWidth;
             double y = pixelHeight * p.Y / backgroundImage.ActualHeight;
-            shapeClicked(new System.Windows.Point((int)x, (int)y));
+            shapeClicked(new Point((int)x, (int)y));
+            if (mode == Mode.ChangeThickness)
+            {
+                foreach (var shape in shapes)
+                {
+
+                    if (shape.points.Contains(new Point((int)x,(int)y)))
+                    {
+                        shape.Thicc(howThicc);
+                        imageDrawing = shape.Draw(imageDrawing);
+                        backgroundImage.Source = ToWpfImage(imageDrawing);
+
+
+                    }
+
+
+
+                }
+
+
+            }
+
             if (mode != Mode.None)
             {
                 if (!isASet)
                 {
-                    a = new System.Windows.Point(x, y);
+                    a = new Point((int)x, (int)y);
                     isASet = true;
                     //MessageBox.Show("XD");
                 }
                 else if (!isBSet)
                 {
-                    b = new System.Windows.Point(x, y);
+                    b = new Point((int)x, (int)y);
                     isBSet = true;
 
                 }
@@ -230,6 +260,7 @@ namespace Shape_Drawer
                     {
                         ChangePosition();
                     }
+                   
                     DrawShapes();
                 }
 
@@ -267,6 +298,18 @@ namespace Shape_Drawer
         private void PositionButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Position;
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!Int32.TryParse(ThiccTextBox.Text, out howThicc))
+                howThicc = 1;
+            //DrawShapes();
+        }
+        private void ThicknessButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.ChangeThickness;
+            
         }
     }
 }

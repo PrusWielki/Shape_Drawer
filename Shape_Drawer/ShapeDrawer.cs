@@ -7,10 +7,20 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Point = System.Windows.Point;
+//using Point = System.Windows.Point;
 
 namespace Shape_Drawer
 {
+    public struct Point
+    {
+        public int X;
+        public int Y;
+
+        public Point(int a, int b)
+        {
+            X = a; Y = b; 
+        }
+    }
     internal abstract class ShapeDrawer
     {
         public List<Point> points = new List<Point>();
@@ -30,6 +40,7 @@ namespace Shape_Drawer
 
         abstract public Image Draw(Image imgSource);
         abstract public void GetPoints();
+        abstract public void Thicc(int howThicc);
 
         abstract public void TransformPoints(Point a);
 
@@ -105,6 +116,11 @@ namespace Shape_Drawer
             throw new NotImplementedException();
         }
 
+        public override void Thicc(int howThicc)
+        {
+            
+        }
+
         public override void TransformPoints(Point p)
         {
             points.Clear();
@@ -129,10 +145,53 @@ namespace Shape_Drawer
         public SymmetricLine(Point a, Point b) : base(a, b) { }
 
         
+        public override void Thicc(int howThicc)
+        {
+            //BitmapData srcData = newBitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            ////hold the amount of bytes needed to represent the image's pixels
+            //int bytes = srcData.Stride * srcData.Height;
+            //byte[] buffer = new byte[bytes];
+            //byte[] result = new byte[bytes];
+
+            ////copy image data to the buffer
+            //Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            //newBitmap.UnlockBits(srcData);
+            int listSize = points.Count;
+
+            if (howThicc == 1)
+                return;
+            for(int i = 0; i < listSize; i++)
+            {
+                for(int j = 1; j < (howThicc - 1) / 2+1; j++)
+                {
+                    if (Math.Abs((int)a.X - b.X) > Math.Abs((int)a.Y - b.Y))
+                    {
+                        //buffer[y * srcData.Stride + (a.X+j) * 4] = (byte)bColor;
+                        //buffer[y * srcData.Stride + (a.X+j) * 4 + 1] = (byte)gColor;
+                        //buffer[y * srcData.Stride + (a.X+j) * 4 + 2] = (byte)rColor;
+
+                        points.Add(new Point(a.X+j, a.Y));
+                        points.Add(new Point(a.X -j, a.Y));
+                    }
+                    else
+                    {
+                        points.Add(new Point(a.X, a.Y+j));
+                        points.Add(new Point(a.X, a.Y-j));
+
+                    }
+                }
+
+            }
+
+
+
+        }
+
+
         public override void GetPoints()
         {
 
-
+            points.Clear();
 
             int dx = (int)(b.X - a.X);
             int dy = (int)(b.Y - a.Y);
@@ -224,7 +283,7 @@ namespace Shape_Drawer
         {
 
 
-
+            points.Clear();
 
             int R = (int)Math.Sqrt((Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2)));
 
