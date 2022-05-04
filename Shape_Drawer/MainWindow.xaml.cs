@@ -16,14 +16,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Color = System.Windows.Media.Color;
-
 namespace Shape_Drawer
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-
     enum Mode
     {
         None,
@@ -33,49 +31,31 @@ namespace Shape_Drawer
         Deletion,
         Position,
         Select,
-
-
     }
     public partial class MainWindow : Window
     {
         Point a;
         Point b;
-
-        int howThicc=1;
-
+        int howThicc = 1;
         System.Windows.Point changePositionA;
         System.Windows.Point changePositionB;
-
-
         bool isASet;
         bool isBSet;
-        List<ShapeDrawer> shapes=new List<ShapeDrawer>();
-
-        Mode mode=Mode.None;
-
-
+        List<ShapeDrawer> shapes = new List<ShapeDrawer>();
+        Mode mode = Mode.None;
         System.Drawing.Image imageDrawing;
-
         public IEnumerable<KeyValuePair<String, Color>> NamedColors
         {
             get;
             private set;
         }
-
         public MainWindow()
         {
             InitializeComponent();
-
             this.NamedColors = this.GetColors();
-
             this.DataContext = this;
             ConvertToDrawing(backgroundImage);
-           
-
-
-
         }
-
         private IEnumerable<KeyValuePair<String, System.Windows.Media.Color>> GetColors()
         {
             return typeof(Colors)
@@ -93,11 +73,8 @@ namespace Shape_Drawer
             System.Windows.Media.Imaging.BmpBitmapEncoder bbe = new BmpBitmapEncoder();
             if (null != img.Source)
                 bbe.Frames.Add(BitmapFrame.Create(new Uri("../../../transparent.png", UriKind.RelativeOrAbsolute)));
-
             else
                 return;
-
-
             bbe.Save(ms);
             imageDrawing = System.Drawing.Image.FromStream(ms);
         }
@@ -105,7 +82,6 @@ namespace Shape_Drawer
         {
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
             img.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
-
             BitmapImage ix = new BitmapImage();
             ix.BeginInit();
             ix.CacheOption = BitmapCacheOption.OnLoad;
@@ -113,10 +89,9 @@ namespace Shape_Drawer
             ix.EndInit();
             return ix;
         }
-
         private bool shapeClicked(Point a)
         {
-            foreach(var shape in shapes)
+            foreach (var shape in shapes)
             {
                 if (shape.points.Contains(a))
                 {
@@ -125,34 +100,23 @@ namespace Shape_Drawer
                         shapes.Remove(shape);
                         DrawShapes();
                         break;
-
-
                     }
-    
-                   
                     return true;
                 }
-               
-                
-
             }
-
             return false;
-
         }
-
         private void DrawShapes()
         {
             ConvertToDrawing(backgroundImage);
             if (backgroundImage == null)
                 return;
-            foreach(var shape in shapes)
+            foreach (var shape in shapes)
             {
-                if(!shape.gotPoints)
-                shape.GetPoints();
+                if (!shape.gotPoints)
+                    shape.GetPoints();
                 //shape.Thicc(howThicc);
-                imageDrawing=shape.Draw(imageDrawing);
-
+                imageDrawing = shape.Draw(imageDrawing);
             }
             if (shapes.Count > 0)
                 backgroundImage.Source = ToWpfImage(imageDrawing);
@@ -160,31 +124,22 @@ namespace Shape_Drawer
             {
                 backgroundImage.Source = new BitmapImage(new Uri("../../../transparent.png", UriKind.RelativeOrAbsolute));
             }
-
         }
         private void ChangePosition()
         {
-
-            
             Point difference = new Point((int)(b.X - a.X), (int)(b.Y - a.Y));
             foreach (var shape in shapes)
             {
-
-                if (shape.points.Contains(new Point((int)a.X,(int)a.Y)))
+                if (shape.points.Contains(new Point((int)a.X, (int)a.Y)))
                 {
                     shape.TransformPoints(difference);
-
                 }
-
             }
             DrawShapes();
-
         }
-
         private void backgroundImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Point p = e.GetPosition(backgroundImage);
-            
             double pixelWidth = backgroundImage.Source.Width;
             double pixelHeight = backgroundImage.Source.Height;
             double x = pixelWidth * p.X / backgroundImage.ActualWidth;
@@ -194,108 +149,81 @@ namespace Shape_Drawer
             {
                 foreach (var shape in shapes)
                 {
-
-                    if (shape.points.Contains(new Point((int)x,(int)y)))
+                    if (shape.points.Contains(new Point((int)x, (int)y)))
                     {
                         shape.Thicc(howThicc);
                         imageDrawing = shape.Draw(imageDrawing);
                         backgroundImage.Source = ToWpfImage(imageDrawing);
-
-
                     }
-
                 }
-
-
             }
-
             if (mode != Mode.None)
             {
                 if (!isASet)
                 {
                     a = new Point((int)x, (int)y);
                     isASet = true;
-
                 }
                 else if (!isBSet)
                 {
                     b = new Point((int)x, (int)y);
                     isBSet = true;
-
                 }
-              
                 if (isASet && isBSet)
                 {
-                    isASet=false;
-                    isBSet=false;
+                    isASet = false;
+                    isBSet = false;
                     if (mode == Mode.Line)
                     {
                         shapes.Add(new SymmetricLine(a, b));
-
                         mode = Mode.None;
-
                     }
                     else if (mode == Mode.Circle)
                     {
                         shapes.Add(new MidpointCircle(a, b));
-
                         mode = Mode.None;
-
                     }
                     else if (mode == Mode.Position)
                     {
                         ChangePosition();
                     }
-                   
                     DrawShapes();
                 }
-
             }
-            
-
         }
-
         private void DrawALineButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Line;
         }
-
         private void DrawAThickLineButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.ThickLine;
         }
-
         private void DrawACircleButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Circle;
         }
-
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Deletion;
         }
-
         private void RemoveAllButton_Click(object sender, RoutedEventArgs e)
         {
             shapes.Clear();
             DrawShapes();
         }
-
         private void PositionButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Position;
         }
-
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!Int32.TryParse(ThiccTextBox.Text, out howThicc))
                 howThicc = 1;
-
         }
         private void ThicknessButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Select;
-            
         }
     }
 }
