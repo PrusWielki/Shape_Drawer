@@ -31,6 +31,7 @@ namespace Shape_Drawer
         Deletion,
         Position,
         Select,
+        Polygon,
     }
     public partial class MainWindow : Window
     {
@@ -47,7 +48,8 @@ namespace Shape_Drawer
         bool isBSet;
         List<ShapeDrawer> shapes = new List<ShapeDrawer>();
         Mode mode = Mode.None;
-        System.Drawing.Image imageDrawing;
+        System.Drawing.Image? imageDrawing;
+        List<Point> polygonPoints = new List<Point>();
         public IEnumerable<KeyValuePair<String, Color>> NamedColors
         {
             get;
@@ -120,10 +122,14 @@ namespace Shape_Drawer
                 if (!shape.gotPoints)
                     shape.GetPoints();
                 //shape.Thicc(howThicc);
-                imageDrawing = shape.Draw(imageDrawing);
+                if (null != imageDrawing)
+                    imageDrawing = shape.Draw(imageDrawing);
             }
             if (shapes.Count > 0)
-                backgroundImage.Source = ToWpfImage(imageDrawing);
+            {
+                if (null != imageDrawing)
+                    backgroundImage.Source = ToWpfImage(imageDrawing);
+            }
             else
             {
                 backgroundImage.Source = new BitmapImage(new Uri("../../../transparent.png", UriKind.RelativeOrAbsolute));
@@ -151,6 +157,19 @@ namespace Shape_Drawer
             shapeClicked(new Point((int)x, (int)y));
             if (mode != Mode.None)
             {
+                if (mode == Mode.Polygon)
+                {
+                    if (polygonPoints.Count > 1)
+                    {
+                        if (Math.Abs(x - polygonPoints[0].X) < 10 && Math.Abs(y - polygonPoints[0].Y) < 10)
+                        {
+                            shapes.Add(new Polygon(polygonPoints[0], polygonPoints[1], R, G, B, polygonPoints));
+                            DrawShapes();
+                            polygonPoints.Clear();
+                        }
+                    }
+                    polygonPoints.Add(new Point((int)x, (int)y));
+                }
                 if (mode == Mode.Select)
                 {
                     foreach (var shape in shapes)
@@ -159,8 +178,11 @@ namespace Shape_Drawer
                         {
                             shape.Thicc(howThicc);
                             shape.ChangeColor(R, G, B);
-                            imageDrawing = shape.Draw(imageDrawing);
-                            backgroundImage.Source = ToWpfImage(imageDrawing);
+                            shape.ChangeRadius(Radius);
+                            if (null != imageDrawing)
+                                imageDrawing = shape.Draw(imageDrawing);
+                            if (null != imageDrawing)
+                                backgroundImage.Source = ToWpfImage(imageDrawing);
                         }
                     }
                 }
@@ -242,29 +264,29 @@ namespace Shape_Drawer
         {
             mode = Mode.Select;
         }
-
         private void R_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!Int32.TryParse(RTextBox.Text, out R))
                 R = 0;
         }
-
         private void G_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!Int32.TryParse(GTextBox.Text, out G))
                 G = 0;
         }
-
         private void B_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!Int32.TryParse(BTextBox.Text, out B))
                 B = 0;
         }
-
         private void Radius_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!Int32.TryParse(RadiusTextBox.Text, out Radius))
                 Radius = 0;
+        }
+        private void PolygonButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.Polygon;
         }
     }
 }

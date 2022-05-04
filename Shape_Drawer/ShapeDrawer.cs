@@ -27,7 +27,6 @@ namespace Shape_Drawer
         protected int bColor = 0;
         public Point a;
         public Point b;
-        public int Radius;
         protected ShapeDrawer(Point a, Point b, int R, int G, int B)
         {
             rColor = R;
@@ -42,14 +41,13 @@ namespace Shape_Drawer
         abstract public void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource);
         abstract public void TransformPoints(Point a);
         abstract public void ChangeColor(int R, int G, int B);
-
+        abstract public void ChangeRadius(int Radius);
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
         public ShapeDrawerConcrete(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B)
         {
         }
-
         public override void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource)
         {
         }
@@ -58,6 +56,9 @@ namespace Shape_Drawer
             rColor = R;
             gColor = G;
             bColor = B;
+        }
+        public override void ChangeRadius(int Radius)
+        {
         }
         public override Image Draw(Image imgSource)
         {
@@ -110,22 +111,34 @@ namespace Shape_Drawer
         public SymmetricLine(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B) { }
         public override void Thicc(int howThicc)
         {
-            int listSize = points.Count;
             if (howThicc == 1)
+            {
+                gotPoints = false;
                 return;
+            }
+            points.Clear();
+            GetPoints();
+            gotPoints = true;
+            int listSize = points.Count;
             for (int i = 0; i < listSize; i++)
             {
                 for (int j = 1; j < (howThicc - 1) / 2 + 1; j++)
                 {
                     if (Math.Abs((int)a.X - b.X) > Math.Abs((int)a.Y - b.Y))
                     {
-                        points.Add(new Point(points[i].X + j, points[i].Y));
-                        points.Add(new Point(points[i].X - j, points[i].Y));
+                        if (!points.Contains(new Point(points[i].X + j, points[i].Y)))
+                        {
+                            points.Add(new Point(points[i].X + j, points[i].Y));
+                            points.Add(new Point(points[i].X - j, points[i].Y));
+                        }
                     }
                     else
                     {
-                        points.Add(new Point(points[i].X, points[i].Y + j));
-                        points.Add(new Point(points[i].X, points[i].Y - j));
+                        if (!points.Contains(new Point(points[i].X, points[i].Y + j)))
+                        {
+                            points.Add(new Point(points[i].X, points[i].Y + j));
+                            points.Add(new Point(points[i].X, points[i].Y - j));
+                        }
                     }
                 }
             }
@@ -143,12 +156,11 @@ namespace Shape_Drawer
             //copy image data to the buffer
             Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
             newBitmap.UnlockBits(srcData);
-            float r = 0.5f;
+            // float r = 0.5f;
             float cov = 0;// coverage(thickness, distance, r);
                           // if (cov > 0)
                           // {
                           // putPixel(x, y, lerp(BKG_COLOR, LINE_COLOR, cov));
-
             //}
             //create a new bitmap with changed pixel rgb values
             Bitmap resImg = new Bitmap(width, height);
@@ -156,9 +168,7 @@ namespace Shape_Drawer
             Marshal.Copy(buffer, 0, resData.Scan0, bytes);
             resImg.UnlockBits(resData);
             return ((int)cov, resImg);
-
         }
-
         public override void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource)
         {
             //initial values in Bresenham;s algorithm
@@ -225,6 +235,12 @@ namespace Shape_Drawer
         {
             points.Clear();
             gotPoints = true;
+            if (a.X > b.X)
+            {
+                Point temp = a;
+                a = b;
+                b = temp;
+            }
             int dx = (int)(b.X - a.X);
             int dy = (int)(b.Y - a.Y);
             int d = dy - (dx / 2);
@@ -286,12 +302,18 @@ namespace Shape_Drawer
     }
     internal class MidpointCircle : ShapeDrawerConcrete
     {
-        public MidpointCircle(Point a, Point b,int R, int G, int B) : base(a, b, R, G, B) { }
+        public MidpointCircle(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B) { }
+        public override void ChangeRadius(int Radius)
+        {
+            b = new Point(a.X, a.Y + Radius);
+            points.Clear();
+            gotPoints = false;
+        }
         public override void GetPoints()
         {
             points.Clear();
             gotPoints = true;
-            //int Radius = (int)Math.Sqrt((Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2)));
+            int Radius = (int)Math.Sqrt((Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2)));
             int x = Radius;
             int y = 0;
             int P = 1 - Radius;
@@ -344,6 +366,39 @@ namespace Shape_Drawer
                 points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
                 points.Add(new Point((int)(-x + a.X), (int)(a.Y - y)));
             }
+        }
+    }
+    internal class Polygon : ShapeDrawerConcrete
+    {
+        private List<Point> polygonPoints;
+        private List<SymmetricLine> polygonLines;
+        public Polygon(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B)
+        {
+            this.polygonPoints = polygonPoints;
+            polygonLines = new List<SymmetricLine>();
+        }
+        public override void GetPoints()
+        {
+            points.Clear();
+            gotPoints = true;
+            for (int i = 0; i < polygonPoints.Count - 2; i++)
+            {
+                polygonLines.Add(new SymmetricLine(polygonPoints[i], polygonPoints[i + 1], rColor, gColor, bColor));
+            }
+            polygonLines.Add(new SymmetricLine(polygonPoints[polygonPoints.Count - 2], polygonPoints[0], rColor, gColor, bColor));
+            foreach (var line in polygonLines)
+            {
+                line.GetPoints();
+            }
+        }
+        public override Image Draw(Image imgSource)
+        {
+            foreach (var line in polygonLines)
+            {
+                imgSource = line.Draw(imgSource);
+            }
+            return imgSource;
+            // return base.Draw(imgSource);
         }
     }
 }
