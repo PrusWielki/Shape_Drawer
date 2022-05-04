@@ -118,11 +118,6 @@ namespace Shape_Drawer
         {
             foreach(var shape in shapes)
             {
-                //MessageBox.Show(a.X+" "+a.Y);
-                //for(int i = 0; i < shape.points.Count; i++)
-                //{
-                //    MessageBox.Show(shape.points[i].X + " " + shape.points[i].Y);
-                //}
                 if (shape.points.Contains(a))
                 {
                     if (mode == Mode.Deletion)
@@ -177,13 +172,8 @@ namespace Shape_Drawer
 
                 if (shape.points.Contains(new Point((int)a.X,(int)a.Y)))
                 {
-                    //MessageBox.Show("XD");
                     shape.TransformPoints(difference);
-                  //  shape.
-                    //for (int i=0;i<shape.points.Count;i++)
-                    //{
-                    //    shape.points[i] = new System.Windows.Point(shape.points[i].X + difference.X, shape.points[i].Y+ difference.Y);
-                    //}
+
                 }
 
             }
@@ -195,7 +185,6 @@ namespace Shape_Drawer
         {
             System.Windows.Point p = e.GetPosition(backgroundImage);
             
-            // MessageBox.Show(p.X + ", " + p.Y);
             double pixelWidth = backgroundImage.Source.Width;
             double pixelHeight = backgroundImage.Source.Height;
             double x = pixelWidth * p.X / backgroundImage.ActualWidth;
@@ -215,8 +204,6 @@ namespace Shape_Drawer
 
                     }
 
-
-
                 }
 
 
@@ -228,7 +215,7 @@ namespace Shape_Drawer
                 {
                     a = new Point((int)x, (int)y);
                     isASet = true;
-                    //MessageBox.Show("XD");
+
                 }
                 else if (!isBSet)
                 {
@@ -244,16 +231,14 @@ namespace Shape_Drawer
                     if (mode == Mode.Line)
                     {
                         shapes.Add(new SymmetricLine(a, b));
-                        //imageDrawing = shapes[shapes.Count-1].Draw( imageDrawing);
-                        //backgroundImage.Source = ToWpfImage(imageDrawing);
+
                         mode = Mode.None;
 
                     }
                     else if (mode == Mode.Circle)
                     {
                         shapes.Add(new MidpointCircle(a, b));
-                        //imageDrawing = shapes[shapes.Count - 1].Draw(imageDrawing);
-                        //backgroundImage.Source = ToWpfImage(imageDrawing);
+
                         mode = Mode.None;
 
                     }
@@ -267,7 +252,7 @@ namespace Shape_Drawer
 
             }
             
-            //MessageBox.Show(x + ", " + y);
+
         }
 
         private void DrawALineButton_Click(object sender, RoutedEventArgs e)
@@ -305,7 +290,7 @@ namespace Shape_Drawer
         {
             if (!Int32.TryParse(ThiccTextBox.Text, out howThicc))
                 howThicc = 1;
-            //DrawShapes();
+
         }
         private void ThicknessButton_Click(object sender, RoutedEventArgs e)
         {

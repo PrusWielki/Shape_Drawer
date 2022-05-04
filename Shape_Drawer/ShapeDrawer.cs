@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-//using Point = System.Windows.Point;
 
 namespace Shape_Drawer
 {
@@ -92,10 +91,6 @@ namespace Shape_Drawer
             }
 
 
-
-
-
-
             //create a new bitmap with changed pixel rgb values
             Bitmap resImg = new Bitmap(width, height);
             BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
@@ -103,12 +98,6 @@ namespace Shape_Drawer
             resImg.UnlockBits(resData);
 
             return resImg;
-
-
-
-
-
-
 
 
         }
@@ -129,13 +118,6 @@ namespace Shape_Drawer
             gotPoints = false;
             a = new Point(a.X + p.X, a.Y + p.Y);
             b = new Point(b.X + p.X, b.Y + p.Y);
-            //  for(int i=0;i<points.Count; i++)
-            //{
-            //  points[i] = new Point(points[i].X + a.X, points[i].Y + a.Y);
-
-            //            }
-
-
 
         }
     }
@@ -171,9 +153,7 @@ namespace Shape_Drawer
 
                     }
                 }
-
             }
-
 
 
         }
@@ -259,58 +239,11 @@ namespace Shape_Drawer
 
                 }
 
-
                 
                 points.Add(new Point(x, y));
 
             }
 
-            //int d = 2 * dy - dx;
-            //int dE = 2 * dy;
-            //int dNE = 2 * (dy - dx);
-
-            //int xf = (int)a.X, yf = (int)a.Y;
-            //int xb = (int)b.X, yb = (int)b.Y;
-
-            //buffer[yf * srcData.Stride + xf * 4] = (byte)0;
-            //buffer[yf * srcData.Stride + xf * 4+1] = (byte)0;
-            //buffer[yf * srcData.Stride + xf * 4+2] = (byte)0;
-
-
-            //buffer[yb * srcData.Stride + xb * 4] = (byte)0;
-            //buffer[yb * srcData.Stride + xb * 4 + 1] = (byte)0;
-            //buffer[yb * srcData.Stride + xb * 4 + 2] = (byte)0;
-
-
-            //while (xf < xb)
-            //{
-            //    ++xf; --xb;
-            //    if (d < 0)
-            //        d += dE;
-            //    else
-            //    {
-            //        d += dNE;
-            //        ++yf;
-            //        --yb;
-            //    }
-            //    buffer[yf * srcData.Stride + xf * 4] = (byte)0;
-            //    buffer[yf * srcData.Stride + xf * 4 + 1] = (byte)0;
-            //    buffer[yf * srcData.Stride + xf * 4 + 2] = (byte)0;
-
-
-            //    buffer[yb * srcData.Stride + xb * 4] = (byte)0;
-            //    buffer[yb * srcData.Stride + xb * 4 + 1] = (byte)0;
-            //    buffer[yb * srcData.Stride + xb * 4 + 2] = (byte)0;
-            //}
-
-
-            //create a new bitmap with changed pixel rgb values
-
-
-
-
-            // putPixel(xf, yf);
-            // putPixel(xb, yb);
 
         }
 
@@ -319,7 +252,6 @@ namespace Shape_Drawer
     }
     internal class MidpointCircle : ShapeDrawerConcrete
     {
-        //public new List<Point> points=new List<Point>();
 
         public MidpointCircle(Point a, Point b) : base(a, b) { }
         
@@ -436,16 +368,6 @@ namespace Shape_Drawer
 
 
             }
-
-
-            //create a new bitmap with changed pixel rgb values
-
-
-
-
-
-            // putPixel(xf, yf);
-            // putPixel(xb, yb);
 
         }
        
