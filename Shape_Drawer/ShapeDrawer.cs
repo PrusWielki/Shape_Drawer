@@ -25,6 +25,8 @@ namespace Shape_Drawer
     {
         public List<Point> points = new List<Point>();
 
+        public bool gotPoints = false;
+
         public int rColor = 0;
         public int gColor = 0;
         public int bColor = 0;
@@ -124,6 +126,7 @@ namespace Shape_Drawer
         public override void TransformPoints(Point p)
         {
             points.Clear();
+            gotPoints = false;
             a = new Point(a.X + p.X, a.Y + p.Y);
             b = new Point(b.X + p.X, b.Y + p.Y);
             //  for(int i=0;i<points.Count; i++)
@@ -140,22 +143,13 @@ namespace Shape_Drawer
     internal class SymmetricLine : ShapeDrawerConcrete
     {
 
-        //public new List<Point> points = new List<Point>();
+
 
         public SymmetricLine(Point a, Point b) : base(a, b) { }
 
         
         public override void Thicc(int howThicc)
         {
-            //BitmapData srcData = newBitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            ////hold the amount of bytes needed to represent the image's pixels
-            //int bytes = srcData.Stride * srcData.Height;
-            //byte[] buffer = new byte[bytes];
-            //byte[] result = new byte[bytes];
-
-            ////copy image data to the buffer
-            //Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
-            //newBitmap.UnlockBits(srcData);
             int listSize = points.Count;
 
             if (howThicc == 1)
@@ -166,17 +160,14 @@ namespace Shape_Drawer
                 {
                     if (Math.Abs((int)a.X - b.X) > Math.Abs((int)a.Y - b.Y))
                     {
-                        //buffer[y * srcData.Stride + (a.X+j) * 4] = (byte)bColor;
-                        //buffer[y * srcData.Stride + (a.X+j) * 4 + 1] = (byte)gColor;
-                        //buffer[y * srcData.Stride + (a.X+j) * 4 + 2] = (byte)rColor;
 
-                        points.Add(new Point(a.X+j, a.Y));
-                        points.Add(new Point(a.X -j, a.Y));
+                        points.Add(new Point(points[i].X+j, points[i].Y));
+                        points.Add(new Point(points[i].X - j, points[i].Y));
                     }
                     else
                     {
-                        points.Add(new Point(a.X, a.Y+j));
-                        points.Add(new Point(a.X, a.Y-j));
+                        points.Add(new Point(points[i].X, points[i].Y + j));
+                        points.Add(new Point(points[i].X, points[i].Y - j));
 
                     }
                 }
@@ -192,6 +183,7 @@ namespace Shape_Drawer
         {
 
             points.Clear();
+            gotPoints = true;
 
             int dx = (int)(b.X - a.X);
             int dy = (int)(b.Y - a.Y);
@@ -206,16 +198,69 @@ namespace Shape_Drawer
 
             while (x < (int)b.X)
             {
-                x++;
+                if (a.X < b.X)
+                {
+                    x++;
+                    if (a.Y < b.Y)
+                    {
 
-                if (d < 0)
-                    d = d + dy;
+
+                        if (d < 0)
+                            d = d + dy;
+                        else
+                        {
+                            d += (dy - dx);
+                            y++;
+                        }
+                    }
+                    else if (a.Y > b.Y)
+                    {
+
+
+                        if (d > 0)
+                            d = d + dy;
+                        else
+                        {
+                            d += (dy - dx);
+                            y--;
+                        }
+
+                    }
+                }
                 else
                 {
-                    d += (dy - dx);
-                    y++;
+                    x--;
+                    if (a.Y < b.Y)
+                    {
+
+
+                        if (d < 0)
+                            d = d + dy;
+                        else
+                        {
+                            d += (dy + dx);
+                            y++;
+                        }
+                    }
+                    else if (a.Y > b.Y)
+                    {
+
+
+                        if (d > 0)
+                            d = d + dy;
+                        else
+                        {
+                            d += (dy + dx);
+                            y--;
+                        }
+
+                    }
+
+
                 }
 
+
+                
                 points.Add(new Point(x, y));
 
             }
@@ -284,7 +329,7 @@ namespace Shape_Drawer
 
 
             points.Clear();
-
+            gotPoints = true;
             int R = (int)Math.Sqrt((Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2)));
 
             int x = R;

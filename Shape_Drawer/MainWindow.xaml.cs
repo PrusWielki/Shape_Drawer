@@ -32,7 +32,7 @@ namespace Shape_Drawer
         Circle,
         Deletion,
         Position,
-        ChangeThickness,
+        Select,
 
 
     }
@@ -153,6 +153,7 @@ namespace Shape_Drawer
                 return;
             foreach(var shape in shapes)
             {
+                if(!shape.gotPoints)
                 shape.GetPoints();
                 //shape.Thicc(howThicc);
                 imageDrawing=shape.Draw(imageDrawing);
@@ -200,7 +201,7 @@ namespace Shape_Drawer
             double x = pixelWidth * p.X / backgroundImage.ActualWidth;
             double y = pixelHeight * p.Y / backgroundImage.ActualHeight;
             shapeClicked(new Point((int)x, (int)y));
-            if (mode == Mode.ChangeThickness)
+            if (mode == Mode.Select)
             {
                 foreach (var shape in shapes)
                 {
@@ -308,7 +309,7 @@ namespace Shape_Drawer
         }
         private void ThicknessButton_Click(object sender, RoutedEventArgs e)
         {
-            mode = Mode.ChangeThickness;
+            mode = Mode.Select;
             
         }
     }
