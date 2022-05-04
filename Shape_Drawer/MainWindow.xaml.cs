@@ -36,6 +36,10 @@ namespace Shape_Drawer
     {
         Point a;
         Point b;
+        int R = 0;
+        int G = 0;
+        int B = 0;
+        int Radius = 0;
         int howThicc = 1;
         System.Windows.Point changePositionA;
         System.Windows.Point changePositionB;
@@ -145,20 +149,21 @@ namespace Shape_Drawer
             double x = pixelWidth * p.X / backgroundImage.ActualWidth;
             double y = pixelHeight * p.Y / backgroundImage.ActualHeight;
             shapeClicked(new Point((int)x, (int)y));
-            if (mode == Mode.Select)
-            {
-                foreach (var shape in shapes)
-                {
-                    if (shape.points.Contains(new Point((int)x, (int)y)))
-                    {
-                        shape.Thicc(howThicc);
-                        imageDrawing = shape.Draw(imageDrawing);
-                        backgroundImage.Source = ToWpfImage(imageDrawing);
-                    }
-                }
-            }
             if (mode != Mode.None)
             {
+                if (mode == Mode.Select)
+                {
+                    foreach (var shape in shapes)
+                    {
+                        if (shape.points.Contains(new Point((int)x, (int)y)))
+                        {
+                            shape.Thicc(howThicc);
+                            shape.ChangeColor(R, G, B);
+                            imageDrawing = shape.Draw(imageDrawing);
+                            backgroundImage.Source = ToWpfImage(imageDrawing);
+                        }
+                    }
+                }
                 if (!isASet)
                 {
                     a = new Point((int)x, (int)y);
@@ -175,17 +180,29 @@ namespace Shape_Drawer
                     isBSet = false;
                     if (mode == Mode.Line)
                     {
-                        shapes.Add(new SymmetricLine(a, b));
+                        shapes.Add(new SymmetricLine(a, b, R, G, B));
                         mode = Mode.None;
                     }
                     else if (mode == Mode.Circle)
                     {
-                        shapes.Add(new MidpointCircle(a, b));
+                        shapes.Add(new MidpointCircle(a, b, R, G, B));
                         mode = Mode.None;
                     }
                     else if (mode == Mode.Position)
                     {
                         ChangePosition();
+                    }
+                    else if (mode == Mode.Deletion)
+                    {
+                        foreach (var shape in shapes)
+                        {
+                            if (shape.points.Contains(a))
+                            {
+                                shapes.Remove(shape);
+                                DrawShapes();
+                                break;
+                            }
+                        }
                     }
                     DrawShapes();
                 }
@@ -224,6 +241,30 @@ namespace Shape_Drawer
         private void ThicknessButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Select;
+        }
+
+        private void R_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!Int32.TryParse(RTextBox.Text, out R))
+                R = 0;
+        }
+
+        private void G_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!Int32.TryParse(GTextBox.Text, out G))
+                G = 0;
+        }
+
+        private void B_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!Int32.TryParse(BTextBox.Text, out B))
+                B = 0;
+        }
+
+        private void Radius_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!Int32.TryParse(RadiusTextBox.Text, out Radius))
+                Radius = 0;
         }
     }
 }

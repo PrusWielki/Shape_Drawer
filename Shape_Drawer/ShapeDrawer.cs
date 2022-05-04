@@ -15,32 +15,49 @@ namespace Shape_Drawer
         public int Y;
         public Point(int a, int b)
         {
-            X = a; Y = b; 
+            X = a; Y = b;
         }
     }
     internal abstract class ShapeDrawer
     {
         public List<Point> points = new List<Point>();
         public bool gotPoints = false;
-        public int rColor = 0;
-        public int gColor = 0;
-        public int bColor = 0;
+        protected int rColor = 0;
+        protected int gColor = 0;
+        protected int bColor = 0;
         public Point a;
         public Point b;
-        protected ShapeDrawer(Point a, Point b)
+        public int Radius;
+        protected ShapeDrawer(Point a, Point b, int R, int G, int B)
         {
+            rColor = R;
+            gColor = G;
+            bColor = B;
             this.a = a;
             this.b = b;
         }
         abstract public Image Draw(Image imgSource);
         abstract public void GetPoints();
         abstract public void Thicc(int howThicc);
+        abstract public void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource);
         abstract public void TransformPoints(Point a);
+        abstract public void ChangeColor(int R, int G, int B);
+
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
-        public ShapeDrawerConcrete(Point a, Point b) : base(a, b)
+        public ShapeDrawerConcrete(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B)
         {
+        }
+
+        public override void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource)
+        {
+        }
+        public override void ChangeColor(int R, int G, int B)
+        {
+            rColor = R;
+            gColor = G;
+            bColor = B;
         }
         public override Image Draw(Image imgSource)
         {
@@ -76,7 +93,6 @@ namespace Shape_Drawer
         }
         public override void GetPoints()
         {
-            throw new NotImplementedException();
         }
         public override void Thicc(int howThicc)
         {
@@ -91,19 +107,19 @@ namespace Shape_Drawer
     }
     internal class SymmetricLine : ShapeDrawerConcrete
     {
-        public SymmetricLine(Point a, Point b) : base(a, b) { }
+        public SymmetricLine(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B) { }
         public override void Thicc(int howThicc)
         {
             int listSize = points.Count;
             if (howThicc == 1)
                 return;
-            for(int i = 0; i < listSize; i++)
+            for (int i = 0; i < listSize; i++)
             {
-                for(int j = 1; j < (howThicc - 1) / 2+1; j++)
+                for (int j = 1; j < (howThicc - 1) / 2 + 1; j++)
                 {
                     if (Math.Abs((int)a.X - b.X) > Math.Abs((int)a.Y - b.Y))
                     {
-                        points.Add(new Point(points[i].X+j, points[i].Y));
+                        points.Add(new Point(points[i].X + j, points[i].Y));
                         points.Add(new Point(points[i].X - j, points[i].Y));
                     }
                     else
@@ -111,6 +127,97 @@ namespace Shape_Drawer
                         points.Add(new Point(points[i].X, points[i].Y + j));
                         points.Add(new Point(points[i].X, points[i].Y - j));
                     }
+                }
+            }
+        }
+        private (int, Image) IntensifyPixel(int x, int y, float thickness, float distance, Image imgSource)
+        {
+            int width = imgSource.Width;
+            int height = imgSource.Height;
+            Bitmap newBitmap = (Bitmap)imgSource.Clone();
+            BitmapData srcData = newBitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            //hold the amount of bytes needed to represent the image's pixels
+            int bytes = srcData.Stride * srcData.Height;
+            byte[] buffer = new byte[bytes];
+            byte[] result = new byte[bytes];
+            //copy image data to the buffer
+            Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            newBitmap.UnlockBits(srcData);
+            float r = 0.5f;
+            float cov = 0;// coverage(thickness, distance, r);
+                          // if (cov > 0)
+                          // {
+                          // putPixel(x, y, lerp(BKG_COLOR, LINE_COLOR, cov));
+
+            //}
+            //create a new bitmap with changed pixel rgb values
+            Bitmap resImg = new Bitmap(width, height);
+            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(buffer, 0, resData.Scan0, bytes);
+            resImg.UnlockBits(resData);
+            return ((int)cov, resImg);
+
+        }
+
+        public override void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource)
+        {
+            //initial values in Bresenham;s algorithm
+            int dx = x2 - x1, dy = y2 - y1;
+            int dE = 2 * dy, dNE = 2 * (dy - dx);
+            int d = 2 * dy - dx;
+            int result = 0;
+            int i = 1;
+            int two_v_dx = 0; //numerator, v=0 for the first pixel
+            float invDenom = (float)(1 / (2 * Math.Sqrt(dx * dx + dy * dy))); //inverted denominator
+            float two_dx_invDenom = 2 * dx * invDenom; //precomputed constant
+            int x = x1, y = y1;
+            IntensifyPixel(x, y, thickness, 0, imgSource);
+            while (true)
+            {
+                i++;
+                (result, imgSource) = IntensifyPixel(x, y + i, thickness, i * two_dx_invDenom, imgSource);
+                if (result <= 0)
+                    break;
+            }
+            i = 1;
+            while (true)
+            {
+                i++;
+                (result, imgSource) = IntensifyPixel(x, y - i, thickness, i * two_dx_invDenom, imgSource);
+                if (result <= 0)
+                    break;
+            }
+            while (x < x2)
+            {
+                ++x;
+                if (d < 0) // move to E
+                {
+                    two_v_dx = d + dx;
+                    d += dE;
+                }
+                else // move to NE
+                {
+                    two_v_dx = d - dx;
+                    d += dNE;
+                    ++y;
+                }
+                // Now set the chosen pixel and its neighbors
+                IntensifyPixel(x, y, thickness, two_v_dx * invDenom, imgSource);
+                i = 1;
+                while (true)
+                {
+                    i++;
+                    (result, imgSource) = IntensifyPixel(x, y + i, thickness, i * two_dx_invDenom - two_v_dx * invDenom, imgSource);
+                    if (result <= 0)
+                        break;
+                }
+                i = 1;
+                while (true)
+                {
+                    i++;
+                    (result, imgSource) = IntensifyPixel(x, y - i, thickness, i * two_dx_invDenom + two_v_dx * invDenom, imgSource);
+                    if (result <= 0)
+                        break;
                 }
             }
         }
@@ -179,15 +286,15 @@ namespace Shape_Drawer
     }
     internal class MidpointCircle : ShapeDrawerConcrete
     {
-        public MidpointCircle(Point a, Point b) : base(a, b) { }
+        public MidpointCircle(Point a, Point b,int R, int G, int B) : base(a, b, R, G, B) { }
         public override void GetPoints()
         {
             points.Clear();
             gotPoints = true;
-            int R = (int)Math.Sqrt((Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2)));
-            int x = R;
+            //int Radius = (int)Math.Sqrt((Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2)));
+            int x = Radius;
             int y = 0;
-            int P = 1 - R;
+            int P = 1 - Radius;
             points.Add(new Point((int)(x + a.X), (int)(a.Y + y)));
             points.Add(new Point((int)(-x + a.X), (int)(a.Y + y)));
             points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
@@ -211,11 +318,11 @@ namespace Shape_Drawer
                 points.Add(new Point((int)(-x + a.X), (int)(a.Y - y)));
             }
             x = 0;
-            y = R;
+            y = Radius;
             points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
             int dE = 3;
-            int dSE = 5 - 2 * R;
-            int d = 1 - R;
+            int dSE = 5 - 2 * Radius;
+            int d = 1 - Radius;
             while (x < y)
             {
                 if (d < 0)
