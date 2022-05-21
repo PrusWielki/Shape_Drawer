@@ -242,57 +242,117 @@ namespace Shape_Drawer
                 b = temp;
             }
             int dx = (int)(b.X - a.X);
-            int dy = (int)(b.Y - a.Y);
+            int dy = Math.Abs((int)(b.Y - a.Y));
             int d = dy - (dx / 2);
             int x = (int)a.X, y = (int)a.Y;
             points.Add(new Point(x, y));
+
+            bool vertical = false;
+            if (Math.Abs(b.Y - a.Y) > Math.Abs(b.X - a.X))
+                vertical = true;
             while (x < (int)b.X)
             {
-                if (a.X < b.X)
+                if (vertical)
                 {
-                    x++;
-                    if (a.Y < b.Y)
+                    if (a.X < b.X)
                     {
-                        if (d < 0)
-                            d = d + dy;
-                        else
+                        y++;
+                        if (a.Y < b.Y)
                         {
-                            d += (dy - dx);
-                            y++;
+                            if (d < 0 && dx != 0)
+                                d = d + dy;
+                            else
+                            {
+                                d += (dy - dx);
+                                x++;
+                            }
+                        }
+                        else if (a.Y > b.Y)
+                        {
+                            if (d > 0 && dy != 0)
+                                d = d + dy;
+                            else
+                            {
+                                d += (dy - dx);
+                                x--;
+                            }
                         }
                     }
-                    else if (a.Y > b.Y)
+                    else
                     {
-                        if (d > 0)
-                            d = d + dy;
-                        else
+                        y--;
+                        if (a.Y < b.Y)
                         {
-                            d += (dy - dx);
-                            y--;
+                            if (d < 0 && dy != 0)
+                                d = d + dy;
+                            else
+                            {
+                                d += (dy + dx);
+                                x++;
+                            }
+                        }
+                        else if (a.Y > b.Y)
+                        {
+                            if (d > 0 && dy != 0)
+                                d = d + dy;
+                            else
+                            {
+                                d += (dy + dx);
+                                x--;
+                            }
                         }
                     }
+
+
                 }
                 else
                 {
-                    x--;
-                    if (a.Y < b.Y)
+                    if (a.X < b.X)
                     {
-                        if (d < 0)
-                            d = d + dy;
-                        else
+                        x++;
+                        if (a.Y < b.Y)
                         {
-                            d += (dy + dx);
-                            y++;
+                            if (d < 0)
+                                d = d + dy;
+                            else if(dy != 0)
+                            {
+                                d += (dy - dx);
+                                y++;
+                            }
+                        }
+                        else if (a.Y > b.Y)
+                        {
+                            if (d < 0)
+                                d = d + dy;
+                            else if (dy != 0)
+                            {
+                                d += (dy - dx);
+                                y--;
+                            }
                         }
                     }
-                    else if (a.Y > b.Y)
+                    else
                     {
-                        if (d > 0)
-                            d = d + dy;
-                        else
+                        x--;
+                        if (a.Y < b.Y)
                         {
-                            d += (dy + dx);
-                            y--;
+                            if (d < 0)
+                                d = d + dy;
+                            else if (dy != 0)
+                            {
+                                d += (dy + dx);
+                                y++;
+                            }
+                        }
+                        else if (a.Y > b.Y)
+                        {
+                            if (d > 0)
+                                d = d + dy;
+                            else if (dy != 0)
+                            {
+                                d += (dy + dx);
+                                y--;
+                            }
                         }
                     }
                 }
