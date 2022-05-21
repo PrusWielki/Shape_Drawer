@@ -163,10 +163,7 @@ namespace Shape_Drawer
                 if (mode == Mode.EditShape)
                 {
 
-
-
-
-
+                    return;
                 }
 
                 if (mode == Mode.Polygon)
@@ -193,12 +190,10 @@ namespace Shape_Drawer
                             shape.Thicc(howThicc);
                             shape.ChangeColor(R, G, B);
                             shape.ChangeRadius(Radius);
-                            if (null != imageDrawing)
-                                imageDrawing = shape.Draw(imageDrawing);
-                            if (null != imageDrawing)
-                                backgroundImage.Source = ToWpfImage(imageDrawing);
+
                         }
                     }
+                    DrawShapes();
                     return;
                 }
                 if (!isASet)
@@ -244,7 +239,7 @@ namespace Shape_Drawer
                             {
                                 shapes.Remove(shape);
                                 DrawShapes();
-                                break;
+                                return;
                             }
                         }
                     }
@@ -252,6 +247,8 @@ namespace Shape_Drawer
                 }
             }
         }
+
+
         private void DrawALineButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Line;
@@ -318,7 +315,25 @@ namespace Shape_Drawer
 
         private void EditShapeButton_Click(object sender, RoutedEventArgs e)
         {
-            mode = Mode.EditShape;
+            if (mode == Mode.EditShape)
+            {
+                foreach (var shape in shapes)
+                {
+                    shape.gotPoints = false;
+                }
+                DrawShapes();
+                mode = Mode.None;
+
+            }
+            else
+            {
+                mode = Mode.EditShape;
+                foreach (var shape in shapes)
+                {
+                    shape.ThickenVertices();
+                }
+                DrawShapes();
+            }
         }
     }
 }

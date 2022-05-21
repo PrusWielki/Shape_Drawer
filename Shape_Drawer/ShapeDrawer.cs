@@ -43,6 +43,7 @@ namespace Shape_Drawer
         abstract public void ChangeColor(int R, int G, int B);
         abstract public void ChangeRadius(int Radius);
         abstract public bool HitDetection(Point a);
+        abstract public void ThickenVertices();
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
@@ -102,6 +103,37 @@ namespace Shape_Drawer
         public override void Thicc(int howThicc)
         {
         }
+
+        public override void ThickenVertices()
+        {
+            for(int i = 0; i < 2; i++)
+            {
+                points.Add(new Point(a.X + i, a.Y + i));
+                points.Add(new Point(a.X - i, a.Y - i));
+
+                points.Add(new Point(a.X  , a.Y + i));
+                points.Add(new Point(a.X, a.Y - i));
+
+                points.Add(new Point(a.X + i, a.Y ));
+                points.Add(new Point(a.X - i, a.Y ));
+
+
+
+                points.Add(new Point(b.X + i, b.Y + i));
+                points.Add(new Point(b.X - i, b.Y - i));
+
+
+
+                points.Add(new Point(b.X , b.Y + i));
+                points.Add(new Point(b.X , b.Y - i));
+
+
+                points.Add(new Point(b.X + i, b.Y ));
+                points.Add(new Point(b.X - i, b.Y ));
+
+            }
+        }
+
         public override void TransformPoints(Point p)
         {
             points.Clear();
@@ -109,6 +141,7 @@ namespace Shape_Drawer
             a = new Point(a.X + p.X, a.Y + p.Y);
             b = new Point(b.X + p.X, b.Y + p.Y);
         }
+        
     }
     internal class SymmetricLine : ShapeDrawerConcrete
     {
@@ -493,6 +526,41 @@ namespace Shape_Drawer
             foreach (var line in polygonLines)
             {
                 line.GetPoints();
+            }
+        }
+        public override void ThickenVertices()
+        {
+            foreach (var line in polygonLines)
+            {
+
+
+                for (int i = 0; i < 2; i++)
+                {
+                    
+                    line.points.Add(new Point(a.X + i, a.Y + i));
+                    line.points.Add(new Point(a.X - i, a.Y - i));
+
+                    line.points.Add(new Point(a.X, a.Y + i));
+                    line.points.Add(new Point(a.X, a.Y - i));
+
+                    line.points.Add(new Point(a.X + i, a.Y));
+                    line.points.Add(new Point(a.X - i, a.Y));
+
+
+
+                    line.points.Add(new Point(b.X + i, b.Y + i));
+                    line.points.Add(new Point(b.X - i, b.Y - i));
+
+
+
+                    line.points.Add(new Point(b.X, b.Y + i));
+                    line.points.Add(new Point(b.X, b.Y - i));
+
+
+                    line.points.Add(new Point(b.X + i, b.Y));
+                    line.points.Add(new Point(b.X - i, b.Y));
+
+                }
             }
         }
 
