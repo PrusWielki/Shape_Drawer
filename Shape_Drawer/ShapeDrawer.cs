@@ -32,8 +32,8 @@ namespace Shape_Drawer
             rColor = R;
             gColor = G;
             bColor = B;
-            this.a = a;
-            this.b = b;
+            this.a = new Point(a.X,a.Y);
+            this.b = new Point(b.X,b.Y);
         }
         abstract public Image Draw(Image imgSource);
         abstract public void GetPoints();
@@ -428,7 +428,7 @@ namespace Shape_Drawer
         private List<SymmetricLine> polygonLines;
         public Polygon(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B)
         {
-            this.polygonPoints = polygonPoints;
+            this.polygonPoints = new List<Point>(polygonPoints);
             polygonLines = new List<SymmetricLine>();
         }
         public override void GetPoints()
@@ -463,6 +463,15 @@ namespace Shape_Drawer
             }
             return imgSource;
             // return base.Draw(imgSource);
+        }
+        public override void TransformPoints(Point p)
+        {
+            for(int i=0;i<polygonPoints.Count;i++)
+            {
+                polygonPoints[i] = new Point(polygonPoints[i].X + p.X, polygonPoints[i].Y + p.Y);
+            }
+            polygonLines.Clear();
+            gotPoints = false;
         }
     }
 }
