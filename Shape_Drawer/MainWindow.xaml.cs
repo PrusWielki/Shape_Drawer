@@ -33,6 +33,7 @@ namespace Shape_Drawer
         Select,
         Polygon,
         Rectangle,
+        EditShape,
     }
     public partial class MainWindow : Window
     {
@@ -158,6 +159,16 @@ namespace Shape_Drawer
             shapeClicked(new Point((int)x, (int)y));
             if (mode != Mode.None)
             {
+
+                if (mode == Mode.EditShape)
+                {
+
+
+
+
+
+                }
+
                 if (mode == Mode.Polygon)
                 {
                     if (polygonPoints.Count > 1)
@@ -188,6 +199,7 @@ namespace Shape_Drawer
                                 backgroundImage.Source = ToWpfImage(imageDrawing);
                         }
                     }
+                    return;
                 }
                 if (!isASet)
                 {
@@ -302,6 +314,11 @@ namespace Shape_Drawer
         private void RectangleButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Rectangle;
+        }
+
+        private void EditShapeButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.EditShape;
         }
     }
 }

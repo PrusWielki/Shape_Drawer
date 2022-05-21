@@ -81,7 +81,6 @@ namespace Shape_Drawer
                 buffer[point.Y * srcData.Stride + point.X * 4 + 1] = (byte)gColor;
                 buffer[point.Y * srcData.Stride + point.X * 4 + 2] = (byte)rColor;
 
-
             }
 
             //create a new bitmap with changed pixel rgb values
