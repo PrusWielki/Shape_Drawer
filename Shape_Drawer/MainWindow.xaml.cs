@@ -219,7 +219,7 @@ namespace Shape_Drawer
                     {
                         foreach (var shape in shapes)
                         {
-                            if (shape.points.Contains(a))
+                            if (shape.HitDetection(a))
                             {
                                 shapes.Remove(shape);
                                 DrawShapes();

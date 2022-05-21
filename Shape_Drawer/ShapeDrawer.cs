@@ -42,6 +42,7 @@ namespace Shape_Drawer
         abstract public void TransformPoints(Point a);
         abstract public void ChangeColor(int R, int G, int B);
         abstract public void ChangeRadius(int Radius);
+        abstract public bool HitDetection(Point a);
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
@@ -95,6 +96,12 @@ namespace Shape_Drawer
         public override void GetPoints()
         {
         }
+
+        public override bool HitDetection(Point a)
+        {
+            return points.Contains(a);
+        }
+
         public override void Thicc(int howThicc)
         {
         }
@@ -437,6 +444,16 @@ namespace Shape_Drawer
             {
                 line.GetPoints();
             }
+        }
+        public override bool HitDetection(Point a)
+        {
+            foreach (var line in polygonLines)
+            {
+                if (line.points.Contains(a))
+                    return true;
+
+            }
+            return false;
         }
         public override Image Draw(Image imgSource)
         {
