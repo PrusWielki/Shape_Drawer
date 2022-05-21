@@ -237,11 +237,9 @@ namespace Shape_Drawer
             gotPoints = true;
             if (a.X > b.X)
             {
-                Point temp = a;
-                a = b;
-                b = temp;
+                (b, a) = (a, b);
             }
-            int dx = (int)(b.X - a.X);
+            int dx = Math.Abs((int)(b.X - a.X));
             int dy = Math.Abs((int)(b.Y - a.Y));
             int d = dy - (dx / 2);
             int x = (int)a.X, y = (int)a.Y;
@@ -250,63 +248,52 @@ namespace Shape_Drawer
             bool vertical = false;
             if (Math.Abs(b.Y - a.Y) > Math.Abs(b.X - a.X))
                 vertical = true;
-            while (x < (int)b.X)
+            if (vertical)
             {
-                if (vertical)
+                if (a.Y < b.Y)
                 {
-                    if (a.X < b.X)
+                    while (y < (int)b.Y && y >= (int)a.Y)
                     {
                         y++;
-                        if (a.Y < b.Y)
+                        if (a.X < b.X)
                         {
-                            if (d < 0 && dx != 0)
-                                d = d + dy;
-                            else
+                            if (d < 0)
+                                d = d + dx;
+                            else if (dx != 0)
                             {
-                                d += (dy - dx);
+                                d += (-dy + dx);
                                 x++;
                             }
                         }
-                        else if (a.Y > b.Y)
-                        {
-                            if (d > 0 && dy != 0)
-                                d = d + dy;
-                            else
-                            {
-                                d += (dy - dx);
-                                x--;
-                            }
-                        }
+                        points.Add(new Point(x, y));
                     }
-                    else
-                    {
-                        y--;
-                        if (a.Y < b.Y)
-                        {
-                            if (d < 0 && dy != 0)
-                                d = d + dy;
-                            else
-                            {
-                                d += (dy + dx);
-                                x++;
-                            }
-                        }
-                        else if (a.Y > b.Y)
-                        {
-                            if (d > 0 && dy != 0)
-                                d = d + dy;
-                            else
-                            {
-                                d += (dy + dx);
-                                x--;
-                            }
-                        }
-                    }
-
 
                 }
                 else
                 {
+                    while (y > (int)b.Y && y <= (int)a.Y)
+                    {
+                        y--;
+                        if (a.X < b.X)
+                        {
+                            if (d < 0)
+                                d = d + dx;
+                            else if (dx != 0)
+                            {
+                                d += (-dy + dx);
+                                x++;
+                            }
+                        }
+                        points.Add(new Point(x, y));
+                    }
+                }
+            }
+
+
+            while (x < (int)b.X&&x>=(int)a.X)
+            {
+                
+               
                     if (a.X < b.X)
                     {
                         x++;
@@ -355,7 +342,7 @@ namespace Shape_Drawer
                             }
                         }
                     }
-                }
+                
                 points.Add(new Point(x, y));
             }
         }
