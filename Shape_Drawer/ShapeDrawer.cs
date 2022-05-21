@@ -74,18 +74,16 @@ namespace Shape_Drawer
             //copy image data to the buffer
             Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
             newBitmap.UnlockBits(srcData);
-            for (int x = 0; x < width; x++)
+
+            foreach(var point in points)
             {
-                for (int y = 0; y < height; y++)
-                {
-                    if (points.Contains(new Point(x, y)))
-                    {
-                        buffer[y * srcData.Stride + x * 4] = (byte)bColor;
-                        buffer[y * srcData.Stride + x * 4 + 1] = (byte)gColor;
-                        buffer[y * srcData.Stride + x * 4 + 2] = (byte)rColor;
-                    }
-                }
+                buffer[point.Y * srcData.Stride + point.X * 4] = (byte)bColor;
+                buffer[point.Y * srcData.Stride + point.X * 4 + 1] = (byte)gColor;
+                buffer[point.Y * srcData.Stride + point.X * 4 + 2] = (byte)rColor;
+
+
             }
+
             //create a new bitmap with changed pixel rgb values
             Bitmap resImg = new Bitmap(width, height);
             BitmapData resData = resImg.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
