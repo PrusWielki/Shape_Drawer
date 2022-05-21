@@ -16,6 +16,8 @@
             <Button Name="DrawAThickLineButton" Content="Draw a thick line" Height="50" Margin="10" Click="DrawAThickLineButton_Click"></Button>
             <Button Name="DrawACircleButton" Content="Draw a circle" Height="50" Margin="10" Click="DrawACircleButton_Click"></Button>
             <Button Name="PolygonButton" Content="Draw a Polygon" Height="50" Margin="10" Click="PolygonButton_Click"></Button>
+            <Button Name="RectangleButton" Content="Draw a Rectangle" Height="50" Margin="10" Click="RectangleButton_Click"></Button>
+
             <Button Name="AntialiasingButton" Content="Antialias" Height="50" Margin="10"></Button>
             <Button Name="SaveToFileButton" Content="Save figures" Height="50" Margin="10"></Button>
             <Button Name="DeleteButton" Content="Deletion mode" Height="50" Margin="10" Click="DeleteButton_Click"></Button>

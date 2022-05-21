@@ -88,7 +88,7 @@ namespace Shape_Drawer
             }
             //create a new bitmap with changed pixel rgb values
             Bitmap resImg = new Bitmap(width, height);
-            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            BitmapData resData = resImg.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
             Marshal.Copy(buffer, 0, resData.Scan0, bytes);
             resImg.UnlockBits(resData);
             return resImg;
@@ -171,7 +171,7 @@ namespace Shape_Drawer
             //}
             //create a new bitmap with changed pixel rgb values
             Bitmap resImg = new Bitmap(width, height);
-            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            BitmapData resData = resImg.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
             Marshal.Copy(buffer, 0, resData.Scan0, bytes);
             resImg.UnlockBits(resData);
             return ((int)cov, resImg);
@@ -424,8 +424,8 @@ namespace Shape_Drawer
     }
     internal class Polygon : ShapeDrawerConcrete
     {
-        private List<Point> polygonPoints;
-        private List<SymmetricLine> polygonLines;
+        protected List<Point> polygonPoints;
+        protected List<SymmetricLine> polygonLines;
         public Polygon(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B)
         {
             this.polygonPoints = new List<Point>(polygonPoints);
@@ -474,4 +474,33 @@ namespace Shape_Drawer
             gotPoints = false;
         }
     }
+    internal class Rectangle : Polygon
+    {
+        public Rectangle(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B, polygonPoints)
+        {
+            this.polygonPoints.Clear();
+            this.polygonPoints.Add(a);
+            this.polygonPoints.Add(new Point(a.X, b.Y));
+            this.polygonPoints.Add(b);
+            this.polygonPoints.Add(new Point(b.X, a.Y));
+        }
+        public override void GetPoints()
+        {
+            points.Clear();
+            gotPoints = true;
+            for (int i = 0; i < polygonPoints.Count - 1; i++)
+            {
+                polygonLines.Add(new SymmetricLine(polygonPoints[i], polygonPoints[i + 1], rColor, gColor, bColor));
+            }
+            polygonLines.Add(new SymmetricLine(polygonPoints[polygonPoints.Count - 1], polygonPoints[0], rColor, gColor, bColor));
+            foreach (var line in polygonLines)
+            {
+                line.GetPoints();
+            }
+        }
+
+
+
+    }
+
 }

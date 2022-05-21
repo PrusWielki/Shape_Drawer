@@ -32,6 +32,7 @@ namespace Shape_Drawer
         Position,
         Select,
         Polygon,
+        Rectangle,
     }
     public partial class MainWindow : Window
     {
@@ -171,6 +172,7 @@ namespace Shape_Drawer
                     }
                     polygonPoints.Add(new Point((int)x, (int)y));
                 }
+                
                 if (mode == Mode.Select)
                 {
                     foreach (var shape in shapes)
@@ -201,6 +203,13 @@ namespace Shape_Drawer
                 {
                     isASet = false;
                     isBSet = false;
+                    if (mode == Mode.Rectangle)
+                    {
+                        shapes.Add(new Rectangle(a, b, R, G, B, polygonPoints));
+                        mode = Mode.None;
+
+
+                    }
                     if (mode == Mode.Line)
                     {
                         shapes.Add(new SymmetricLine(a, b, R, G, B));
@@ -288,6 +297,11 @@ namespace Shape_Drawer
         private void PolygonButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.Polygon;
+        }
+
+        private void RectangleButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.Rectangle;
         }
     }
 }
