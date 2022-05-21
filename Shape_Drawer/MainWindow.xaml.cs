@@ -166,6 +166,7 @@ namespace Shape_Drawer
                             shapes.Add(new Polygon(polygonPoints[0], polygonPoints[1], R, G, B, polygonPoints));
                             DrawShapes();
                             polygonPoints.Clear();
+                            return;
                         }
                     }
                     polygonPoints.Add(new Point((int)x, (int)y));

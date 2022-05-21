@@ -428,11 +428,11 @@ namespace Shape_Drawer
         {
             points.Clear();
             gotPoints = true;
-            for (int i = 0; i < polygonPoints.Count - 2; i++)
+            for (int i = 0; i < polygonPoints.Count - 1; i++)
             {
                 polygonLines.Add(new SymmetricLine(polygonPoints[i], polygonPoints[i + 1], rColor, gColor, bColor));
             }
-            polygonLines.Add(new SymmetricLine(polygonPoints[polygonPoints.Count - 2], polygonPoints[0], rColor, gColor, bColor));
+            polygonLines.Add(new SymmetricLine(polygonPoints[polygonPoints.Count - 1], polygonPoints[0], rColor, gColor, bColor));
             foreach (var line in polygonLines)
             {
                 line.GetPoints();
