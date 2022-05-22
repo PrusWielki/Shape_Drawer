@@ -567,7 +567,7 @@ namespace Shape_Drawer
                 }
                 if (lineHit)
                 {
-                    if (polygonLines[index].points[0].X- (polygonLines[index].points[polygonLines[index].points.Count - 1].X)<2)
+                    if (Math.Abs(polygonLines[index].points[0].X- (polygonLines[index].points[polygonLines[index].points.Count - 1].X))<2)
                     {
                         for(int i = 0; i < polygonPoints.Count; i++)
                         {
@@ -578,7 +578,7 @@ namespace Shape_Drawer
                         }
 
                     }
-                    else if(polygonLines[index].points[0].Y -(polygonLines[index].points[polygonLines[index].points.Count - 1].Y)<2)
+                    else if(Math.Abs(polygonLines[index].points[0].Y -(polygonLines[index].points[polygonLines[index].points.Count - 1].Y))<2)
                     {
                         for (int i = 0; i < polygonPoints.Count; i++)
                         {
@@ -612,38 +612,38 @@ namespace Shape_Drawer
         }
         public override void ThickenVertices()
         {
-            foreach (var line in polygonLines)
-            {
+            //foreach (var line in polygonLines)
+            //{
 
 
-                for (int i = 0; i < 2; i++)
-                {
+            //    for (int i = 0; i < 2; i++)
+            //    {
                     
-                    line.points.Add(new Point(a.X + i, a.Y + i));
-                    line.points.Add(new Point(a.X - i, a.Y - i));
+            //        line.points.Add(new Point(a.X + i, a.Y + i));
+            //        line.points.Add(new Point(a.X - i, a.Y - i));
 
-                    line.points.Add(new Point(a.X, a.Y + i));
-                    line.points.Add(new Point(a.X, a.Y - i));
+            //        line.points.Add(new Point(a.X, a.Y + i));
+            //        line.points.Add(new Point(a.X, a.Y - i));
 
-                    line.points.Add(new Point(a.X + i, a.Y));
-                    line.points.Add(new Point(a.X - i, a.Y));
-
-
-
-                    line.points.Add(new Point(b.X + i, b.Y + i));
-                    line.points.Add(new Point(b.X - i, b.Y - i));
+            //        line.points.Add(new Point(a.X + i, a.Y));
+            //        line.points.Add(new Point(a.X - i, a.Y));
 
 
 
-                    line.points.Add(new Point(b.X, b.Y + i));
-                    line.points.Add(new Point(b.X, b.Y - i));
+            //        line.points.Add(new Point(b.X + i, b.Y + i));
+            //        line.points.Add(new Point(b.X - i, b.Y - i));
 
 
-                    line.points.Add(new Point(b.X + i, b.Y));
-                    line.points.Add(new Point(b.X - i, b.Y));
 
-                }
-            }
+            //        line.points.Add(new Point(b.X, b.Y + i));
+            //        line.points.Add(new Point(b.X, b.Y - i));
+
+
+            //        line.points.Add(new Point(b.X + i, b.Y));
+            //        line.points.Add(new Point(b.X - i, b.Y));
+
+            //    }
+            //}
         }
 
 
