@@ -567,8 +567,29 @@ namespace Shape_Drawer
                 }
                 if (lineHit)
                 {
-                    
+                    if (polygonLines[index].points[0].X- (polygonLines[index].points[polygonLines[index].points.Count - 1].X)<2)
+                    {
+                        for(int i = 0; i < polygonPoints.Count; i++)
+                        {
+                            if (polygonLines[index].points.Contains(polygonPoints[i]))
+                            {
+                                polygonPoints[i] = new Point(t.X, polygonPoints[i].Y);
+                            }
+                        }
 
+                    }
+                    else if(polygonLines[index].points[0].Y -(polygonLines[index].points[polygonLines[index].points.Count - 1].Y)<2)
+                    {
+                        for (int i = 0; i < polygonPoints.Count; i++)
+                        {
+                            if (polygonLines[index].points.Contains(polygonPoints[i]))
+                            {
+                                polygonPoints[i] = new Point(polygonPoints[i].X, t.Y);
+                            }
+                        }
+
+                    }
+                    polygonLines.Clear();
 
                 }
 
