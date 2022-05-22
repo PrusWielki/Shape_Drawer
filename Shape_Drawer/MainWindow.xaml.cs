@@ -143,6 +143,7 @@ namespace Shape_Drawer
             Point difference = new Point((int)(b.X - a.X), (int)(b.Y - a.Y));
             foreach (var shape in shapes)
             {
+                shape.gotPoints = false;
                 if (shape.HitDetection(new Point((int)a.X, (int)a.Y)))
                 {
                     shape.TransformPoints(difference);

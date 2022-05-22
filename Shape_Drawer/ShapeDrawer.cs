@@ -478,6 +478,7 @@ namespace Shape_Drawer
         {
             points.Clear();
             gotPoints = true;
+            polygonLines.Clear();
             for (int i = 0; i < polygonPoints.Count - 1; i++)
             {
                 polygonLines.Add(new SymmetricLine(polygonPoints[i], polygonPoints[i + 1], rColor, gColor, bColor));
@@ -521,7 +522,7 @@ namespace Shape_Drawer
             var lineCount = polygonLines.Count;
             List<SymmetricLine> tempLines = new List<SymmetricLine>(polygonLines);
 
-            polygonLines.Clear();
+            //polygonLines.Clear();
 
             for (int i = 0; i < lineCount; i++)
             {
@@ -662,7 +663,7 @@ namespace Shape_Drawer
                             polygonLines.Add(new SymmetricLine(p1, p2, 200, gColor, bColor));
                         }
                 }
-            points.Clear();
+            //points.Clear();
             foreach(var line in polygonLines)
             {
                 line.GetPoints();
