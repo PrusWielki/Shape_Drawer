@@ -45,6 +45,7 @@ namespace Shape_Drawer
         abstract public bool HitDetection(Point a);
         abstract public void ThickenVertices();
         abstract public void ChangeSize(Point a, Point t);
+        abstract public void ClipRect(Rectangle rect);
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
@@ -67,6 +68,11 @@ namespace Shape_Drawer
         public override void ChangeSize(Point a, Point t)
         {
             
+        }
+
+        public override void ClipRect(Rectangle rect)
+        {
+       
         }
 
         public override Image Draw(Image imgSource)
@@ -503,16 +509,172 @@ namespace Shape_Drawer
         }
         public override void TransformPoints(Point p)
         {
-            for(int i=0;i<polygonPoints.Count;i++)
+            for (int i = 0; i < polygonPoints.Count; i++)
             {
                 polygonPoints[i] = new Point(polygonPoints[i].X + p.X, polygonPoints[i].Y + p.Y);
             }
             polygonLines.Clear();
             gotPoints = false;
         }
+        public override void ClipRect(Rectangle rect)
+        {
+            var lineCount = polygonLines.Count;
+            List<SymmetricLine> tempLines = new List<SymmetricLine>(polygonLines);
+
+            polygonLines.Clear();
+
+            for (int i = 0; i < lineCount; i++)
+            {
+                clipLine(new Point(tempLines[i].a.X, tempLines[i].a.Y), new Point(tempLines[i].b.X, tempLines[i].b.Y), rect);
+                //LiangBarsky(new Point(polygonLines[i].a.X, polygonLines[i].a.Y), new Point(polygonLines[i].b.X, polygonLines[i].b.Y), rect);
+            }
+        }
+        private void LiangBarsky(Point p1, Point p2, Rectangle clip)
+        {
+            float dx = p2.X - p1.X, dy = p2.Y - p1.Y, tE = 0, tL = 1;
+            if (Clip(-dx, p1.X - clip.left, ref tE, ref tL))
+                if (Clip(dx, clip.right - p1.X, ref tE, ref tL))
+                    if (Clip(-dy, p1.Y - clip.bottom, ref tE, ref tL))
+                        if (Clip(dy, clip.top - p1.Y, ref tE, ref tL))
+                        {
+                            if (tL < 1)
+                            {
+                                p2.X = (int)(p1.X + dx * tL);
+                                p2.Y = (int)(p1.Y + dy * tL);
+                            }
+                            if (tE > 0)
+                            {
+                                p1.X += (int)(dx * tE);
+                                p1.Y += (int)(dy * tE);
+                            }
+                            polygonLines.Add(new SymmetricLine(p1, p2, 200, gColor, bColor));
+
+                            //drawLine(p1, p2);
+                        }
+
+
+
+        }
+        private bool Clip(float denom, float numer, ref float tE, ref float tL)
+        {
+            if (denom == 0)
+            { //Paralel line
+                if (numer > 0)
+                    return false; // outside ‐ discard
+                return true; //skip to next edge
+            }
+            float t = numer / denom;
+            if (denom > 0)
+            { //PE
+                if (t > tL) //tE > tL ‐ discard
+                    return false;
+                if (t > tE)
+                    tE = t;
+            }
+            else
+            { //denom < 0 ‐ PL
+                if (t < tE) //tL < tE ‐ discard
+                    return false;
+                if (t < tL)
+                    tL = t;
+            }
+            return true;
+        }
+
+        int clipTest(float p, float q,  ref float tl, ref float t2)
+        {
+            float r;
+            int retVal = 1;
+
+            //line entry point
+            if (p < 0.0)
+            {
+
+                r = q / p;
+
+                // line portion is outside the clipping edge
+                if (r > t2)
+                    retVal = 0;
+
+                else
+                if (r > tl)
+                    tl = r;
+            }
+
+            else
+
+            //line leaving point
+            if (p > 0.0)
+            {
+                r = q / p;
+
+                // line portion is outside     
+                if (r < tl)
+                    retVal = 0;
+
+                else if(r<t2)
+                    t2 = r;
+            }
+
+            // p = 0, so line is parallel to this clipping edge 
+            else
+
+            // Line is outside clipping edge 
+            if (q < 0.0)
+                retVal = 0;
+
+            return (retVal);
+        }
+
+        void clipLine(Point p1, Point p2,Rectangle rect)
+        {
+            float t1 = 0, t2 = 1, dx = p2.X - p1.X, dy;
+
+            // inside test wrt left edge
+            if (clipTest(-dx, p1.X - rect.a.X ,ref t1,ref t2)==1)
+
+                // inside test wrt right edge 
+                if (clipTest(dx, rect.b.X - p1.X, ref t1, ref t2)==1)
+
+                {
+                    dy = p2.Y - p1.Y;
+
+                    // inside test wrt bottom edge 
+                    if (clipTest(-dy, p1.Y - rect.a.Y, ref t1, ref t2)==1)
+
+                        // inside test wrt top edge 
+                        if (clipTest(dy,rect.b.Y - p1.Y, ref t1, ref t2)==1)
+                        {
+
+                            if (t2 < 1.0)
+                            {
+                                p2.X = (int)(p1.X + t2 * dx);
+                                p2.Y = (int)(p1.Y + t2 * dy);
+                            }
+
+                            if (t1 > 0.0)
+                            {
+                                p1.X += (int)(t1 * dx);
+                                p1.Y += (int)(t1 * dy);
+                            }
+
+                           // lineDDA(ROUND(p1.x), ROUND(p1.y), ROUND(p2.x), ROUND(p2.y));
+                            polygonLines.Add(new SymmetricLine(p1, p2, 200, gColor, bColor));
+                        }
+                }
+            points.Clear();
+            foreach(var line in polygonLines)
+            {
+                line.GetPoints();
+            }
+            //gotPoints = false;
+                    
+        }
+
     }
     internal class Rectangle : Polygon
     {
+        public int top, bottom, left, right;
         public Rectangle(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B, polygonPoints)
         {
             this.polygonPoints.Clear();
@@ -520,6 +682,25 @@ namespace Shape_Drawer
             this.polygonPoints.Add(new Point(b.X, a.Y));
             this.polygonPoints.Add(b);
             this.polygonPoints.Add(new Point(a.X, b.Y));
+            if(a.X<b.X)
+            {
+                top = a.Y; bottom = b.Y; left = a.X; right = b.X;
+            }
+            else {
+                top = b.Y; bottom = a.Y; left =b.X; right = a.X;
+            }
+            
+           //foreach(var point in this.polygonPoints)
+           // {
+           //     if (point.Y < top)
+           //         top = point.Y;
+           //     if (point.Y > bottom)
+           //         bottom = point.Y;
+           //     if (point.X < left)
+           //         left = point.X;
+           //     if (point.X > right)
+           //         right = point.X;
+           // }
         }
 
         public override void ChangeSize(Point p, Point t)

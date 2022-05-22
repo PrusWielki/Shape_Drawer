@@ -34,6 +34,7 @@ namespace Shape_Drawer
         Polygon,
         Rectangle,
         EditShape,
+        ClipRect,
     }
     public partial class MainWindow : Window
     {
@@ -149,6 +150,33 @@ namespace Shape_Drawer
             }
             DrawShapes();
         }
+        private void ClipRect(Point a, Point b)
+        {
+            int indexOfPolygon = -1;
+            int indexOfRectangle = -1;
+
+            for(int i=0;i<shapes.Count;i++)
+            {
+                if (shapes[i].HitDetection(a))
+                {
+                    indexOfPolygon = i;
+                    break;
+                }
+            }
+            for (int i = 0; i < shapes.Count; i++)
+            {
+                if (shapes[i].HitDetection(b))
+                {
+                    indexOfRectangle = i;
+                    break;
+                }
+            }
+            if(indexOfPolygon!=-1&&indexOfRectangle!=-1)
+            shapes[indexOfPolygon].ClipRect((Rectangle)shapes[indexOfRectangle]);
+
+
+
+        }
         private void backgroundImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Point p = e.GetPosition(backgroundImage);
@@ -171,6 +199,8 @@ namespace Shape_Drawer
                             shapes.Add(new Polygon(polygonPoints[0], polygonPoints[1], R, G, B, polygonPoints));
                             DrawShapes();
                             polygonPoints.Clear();
+                            isASet = false;
+                            isBSet = false;
                             return;
                         }
                     }
@@ -206,6 +236,14 @@ namespace Shape_Drawer
                 {
                     isASet = false;
                     isBSet = false;
+
+                    if (mode == Mode.ClipRect)
+                    {
+                        ClipRect(a, b);
+                        DrawShapes();
+
+
+                    }
 
                     if (mode == Mode.EditShape)
                     {
@@ -343,6 +381,11 @@ namespace Shape_Drawer
                 }
                 DrawShapes();
             }
+        }
+
+        private void ClipButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode = Mode.ClipRect;
         }
     }
 }
