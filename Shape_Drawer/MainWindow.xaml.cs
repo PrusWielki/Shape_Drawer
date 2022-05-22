@@ -160,11 +160,7 @@ namespace Shape_Drawer
             if (mode != Mode.None)
             {
 
-                if (mode == Mode.EditShape)
-                {
-
-                    return;
-                }
+                
 
                 if (mode == Mode.Polygon)
                 {
@@ -210,6 +206,19 @@ namespace Shape_Drawer
                 {
                     isASet = false;
                     isBSet = false;
+
+                    if (mode == Mode.EditShape)
+                    {
+                        foreach (var shape in shapes)
+                        {
+                            if (shape.HitDetection(a))
+                            {
+                                shape.ChangeSize(a,b);
+                                DrawShapes();
+                            }
+                        }
+                        return;
+                    }
                     if (mode == Mode.Rectangle)
                     {
                         shapes.Add(new Rectangle(a, b, R, G, B, polygonPoints));

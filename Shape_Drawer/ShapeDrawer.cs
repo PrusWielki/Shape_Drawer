@@ -44,6 +44,7 @@ namespace Shape_Drawer
         abstract public void ChangeRadius(int Radius);
         abstract public bool HitDetection(Point a);
         abstract public void ThickenVertices();
+        abstract public void ChangeSize(Point a, Point t);
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
@@ -62,6 +63,12 @@ namespace Shape_Drawer
         public override void ChangeRadius(int Radius)
         {
         }
+
+        public override void ChangeSize(Point a, Point t)
+        {
+            
+        }
+
         public override Image Draw(Image imgSource)
         {
             int width = imgSource.Width;
@@ -510,9 +517,63 @@ namespace Shape_Drawer
         {
             this.polygonPoints.Clear();
             this.polygonPoints.Add(a);
-            this.polygonPoints.Add(new Point(a.X, b.Y));
-            this.polygonPoints.Add(b);
             this.polygonPoints.Add(new Point(b.X, a.Y));
+            this.polygonPoints.Add(b);
+            this.polygonPoints.Add(new Point(a.X, b.Y));
+        }
+
+        public override void ChangeSize(Point p, Point t)
+        {
+            bool vertexHit=false;
+            bool lineHit = false;
+            int index = 0;
+            gotPoints = false;
+            Point temp;
+
+            foreach(var point in polygonPoints)
+            {
+                if (Math.Abs(point.X-p.X)<3&& Math.Abs(point.Y - p.Y) < 3)
+                {
+                    vertexHit=true;
+                    break;
+                }
+                index++;
+            }
+            if (vertexHit)
+            {
+                temp = new Point(polygonPoints[(index+2)%4].X, polygonPoints[(index + 2) % 4].Y);
+                polygonPoints.Clear();
+                polygonLines.Clear();
+                a = temp;
+                b = t;
+                this.polygonPoints.Add(temp);
+                this.polygonPoints.Add(new Point(temp.X, t.Y));
+                this.polygonPoints.Add(t);
+                this.polygonPoints.Add(new Point(t.X, temp.Y));
+
+            }
+            else
+            {
+                index = 0;
+                foreach(var line in polygonLines)
+                {
+                    if (line.HitDetection(p))
+                    {
+                        lineHit = true;
+                        break;
+                    }
+
+                    index++;
+                }
+                if (lineHit)
+                {
+                    
+
+
+                }
+
+            }
+
         }
         public override void GetPoints()
         {
