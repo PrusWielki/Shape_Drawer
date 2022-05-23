@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 namespace Shape_Drawer
 {
@@ -9,9 +10,14 @@ namespace Shape_Drawer
     {
         public int X;
         public int Y;
-        public Point(int a, int b)
+        public byte R;
+        public byte G;
+        public byte B;
+        public Point(int a, int b, byte _R, byte _G, byte _B)
         {
             X = a; Y = b;
+            R = _R;
+            G=_G; B= _B; 
         }
     }
     public struct EdgeInBucket
@@ -33,42 +39,43 @@ namespace Shape_Drawer
     {
         public List<Point> points = new List<Point>();
         public bool gotPoints = false;
-        protected int rColor = 0;
-        protected int gColor = 0;
-        protected int bColor = 0;
+        protected byte rColor = 0;
+        protected byte gColor = 0;
+        protected byte bColor = 0;
         public Point a;
         public Point b;
-        protected ShapeDrawer(Point a, Point b, int R, int G, int B)
+        protected ShapeDrawer(Point a, Point b, byte R, byte G, byte B)
         {
             rColor = R;
             gColor = G;
             bColor = B;
-            this.a = new Point(a.X, a.Y);
-            this.b = new Point(b.X, b.Y);
+            this.a = new Point(a.X, a.Y, (byte)R, (byte)G, (byte)B);
+            this.b = new Point(b.X, b.Y, (byte)R, (byte)G, (byte)B);
         }
         abstract public Image Draw(Image imgSource);
         abstract public void GetPoints();
         abstract public void Thicc(int howThicc);
         abstract public void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource);
         abstract public void TransformPoints(Point a);
-        abstract public void ChangeColor(int R, int G, int B);
+        abstract public void ChangeColor(byte R, byte G, byte B);
         abstract public void ChangeRadius(int Radius);
         abstract public bool HitDetection(Point a);
         abstract public void ThickenVertices();
         abstract public void ChangeSize(Point a, Point t);
         abstract public void ClipRect(Rectangle rect);
 
-        abstract public void FillPolygon(int R, int G, int B);
+        abstract public void FillPolygon(byte R, byte G, byte B);
+       abstract public Image FillPolygon(Image imgSource);
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
-        public ShapeDrawerConcrete(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B)
+        public ShapeDrawerConcrete(Point a, Point b, byte R, byte G, byte B) : base(a, b, R, G, B)
         {
         }
         public override void Antialias(int x1, int y1, int x2, int y2, float thickness, Image imgSource)
         {
         }
-        public override void ChangeColor(int R, int G, int B)
+        public override void ChangeColor(byte R, byte G, byte B)
         {
             rColor = R;
             gColor = G;
@@ -118,17 +125,27 @@ namespace Shape_Drawer
             return resImg;
         }
 
-        public override void FillPolygon(int R, int G, int B)
+        public override void FillPolygon(byte R, byte G, byte B)
         {
         }
-
+        public override Image FillPolygon(Image image)
+        {
+            return image;
+        }
         public override void GetPoints()
         {
         }
 
         public override bool HitDetection(Point a)
         {
-            return points.Contains(a);
+            foreach(var point in points)
+            {
+                if (point.X == a.X && point.Y == a.Y)
+                    return true;
+
+            }
+            return false;
+           // return points.Contains(new Point(a.X,a.Y,rColor,gColor,bColor));
         }
 
         public override void Thicc(int howThicc)
@@ -139,28 +156,28 @@ namespace Shape_Drawer
         {
             for (int i = 0; i < 2; i++)
             {
-                points.Add(new Point(a.X + i, a.Y + i));
-                points.Add(new Point(a.X - i, a.Y - i));
+                points.Add(new Point(a.X + i, a.Y + i,rColor,gColor,bColor));
+                points.Add(new Point(a.X - i, a.Y - i, rColor, gColor, bColor));
 
-                points.Add(new Point(a.X, a.Y + i));
-                points.Add(new Point(a.X, a.Y - i));
+                points.Add(new Point(a.X, a.Y + i, rColor, gColor, bColor));
+                points.Add(new Point(a.X, a.Y - i, rColor, gColor, bColor));
 
-                points.Add(new Point(a.X + i, a.Y));
-                points.Add(new Point(a.X - i, a.Y));
-
-
-
-                points.Add(new Point(b.X + i, b.Y + i));
-                points.Add(new Point(b.X - i, b.Y - i));
+                points.Add(new Point(a.X + i, a.Y, rColor, gColor, bColor));
+                points.Add(new Point(a.X - i, a.Y, rColor, gColor, bColor));
 
 
 
-                points.Add(new Point(b.X, b.Y + i));
-                points.Add(new Point(b.X, b.Y - i));
+                points.Add(new Point(b.X + i, b.Y + i, rColor, gColor, bColor));
+                points.Add(new Point(b.X - i, b.Y - i, rColor, gColor, bColor));
 
 
-                points.Add(new Point(b.X + i, b.Y));
-                points.Add(new Point(b.X - i, b.Y));
+
+                points.Add(new Point(b.X, b.Y + i, rColor, gColor, bColor));
+                points.Add(new Point(b.X, b.Y - i, rColor, gColor, bColor));
+
+
+                points.Add(new Point(b.X + i, b.Y, rColor, gColor, bColor));
+                points.Add(new Point(b.X - i, b.Y, rColor, gColor, bColor));
 
             }
         }
@@ -169,14 +186,14 @@ namespace Shape_Drawer
         {
             points.Clear();
             gotPoints = false;
-            a = new Point(a.X + p.X, a.Y + p.Y);
-            b = new Point(b.X + p.X, b.Y + p.Y);
+            a = new Point(a.X + p.X, a.Y + p.Y,rColor,gColor,bColor);
+            b = new Point(b.X + p.X, b.Y + p.Y, rColor, gColor, bColor);
         }
 
     }
     internal class SymmetricLine : ShapeDrawerConcrete
     {
-        public SymmetricLine(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B) { }
+        public SymmetricLine(Point a, Point b, byte R, byte G, byte B) : base(a, b, R, G, B) { }
         public override void Thicc(int howThicc)
         {
             if (howThicc == 1)
@@ -194,18 +211,18 @@ namespace Shape_Drawer
                 {
                     if (Math.Abs((int)a.X - b.X) > Math.Abs((int)a.Y - b.Y))
                     {
-                        if (!points.Contains(new Point(points[i].X + j, points[i].Y)))
+                        if (!points.Contains(new Point(points[i].X + j, points[i].Y,rColor,gColor,bColor)))
                         {
-                            points.Add(new Point(points[i].X + j, points[i].Y));
-                            points.Add(new Point(points[i].X - j, points[i].Y));
+                            points.Add(new Point(points[i].X + j, points[i].Y, rColor, gColor, bColor));
+                            points.Add(new Point(points[i].X - j, points[i].Y, rColor, gColor, bColor));
                         }
                     }
                     else
                     {
-                        if (!points.Contains(new Point(points[i].X, points[i].Y + j)))
+                        if (!points.Contains(new Point(points[i].X, points[i].Y + j, rColor, gColor, bColor)))
                         {
-                            points.Add(new Point(points[i].X, points[i].Y + j));
-                            points.Add(new Point(points[i].X, points[i].Y - j));
+                            points.Add(new Point(points[i].X, points[i].Y + j, rColor, gColor, bColor));
+                            points.Add(new Point(points[i].X, points[i].Y - j, rColor, gColor, bColor));
                         }
                     }
                 }
@@ -313,7 +330,7 @@ namespace Shape_Drawer
             int dy = Math.Abs((int)(b.Y - a.Y));
             int d = dy - (dx / 2);
             int x = (int)a.X, y = (int)a.Y;
-            points.Add(new Point(x, y));
+            points.Add(new Point(x, y, rColor, gColor, bColor));
 
             bool vertical = false;
             if (Math.Abs(b.Y - a.Y) > Math.Abs(b.X - a.X))
@@ -335,7 +352,7 @@ namespace Shape_Drawer
                                 x++;
                             }
                         }
-                        points.Add(new Point(x, y));
+                        points.Add(new Point(x, y,rColor,gColor,bColor));
                     }
 
                 }
@@ -354,7 +371,7 @@ namespace Shape_Drawer
                                 x++;
                             }
                         }
-                        points.Add(new Point(x, y));
+                        points.Add(new Point(x, y,rColor,gColor,bColor));
                     }
                 }
             }
@@ -413,17 +430,17 @@ namespace Shape_Drawer
                     }
                 }
 
-                points.Add(new Point(x, y));
+                points.Add(new Point(x, y,rColor,gColor,bColor));
             }
             
         }
     }
     internal class MidpointCircle : ShapeDrawerConcrete
     {
-        public MidpointCircle(Point a, Point b, int R, int G, int B) : base(a, b, R, G, B) { }
+        public MidpointCircle(Point a, Point b, byte R, byte G, byte B) : base(a, b, R, G, B) { }
         public override void ChangeRadius(int Radius)
         {
-            b = new Point(a.X, a.Y + Radius);
+            b = new Point(a.X, a.Y + Radius, rColor, gColor, bColor);
             points.Clear();
             gotPoints = false;
         }
@@ -435,11 +452,11 @@ namespace Shape_Drawer
             int x = Radius;
             int y = 0;
             int P = 1 - Radius;
-            points.Add(new Point((int)(x + a.X), (int)(a.Y + y)));
-            points.Add(new Point((int)(-x + a.X), (int)(a.Y + y)));
-            points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
-            points.Add(new Point((int)(y + a.X), (int)(a.Y + x)));
-            points.Add(new Point((int)(-y + a.X), (int)(a.Y + x)));
+            points.Add(new Point((int)(x + a.X), (int)(a.Y + y),rColor,gColor,bColor));
+            points.Add(new Point((int)(-x + a.X), (int)(a.Y + y), rColor, gColor, bColor));
+            points.Add(new Point((int)(x + a.X), (int)(a.Y - y), rColor, gColor, bColor));
+            points.Add(new Point((int)(y + a.X), (int)(a.Y + x), rColor, gColor, bColor));
+            points.Add(new Point((int)(-y + a.X), (int)(a.Y + x), rColor, gColor, bColor));
             while (x > y)
             {
                 y++;
@@ -452,14 +469,14 @@ namespace Shape_Drawer
                 }
                 if (x < y)
                     break;
-                points.Add(new Point((int)(x + a.X), (int)(a.Y + y)));
-                points.Add(new Point((int)(-x + a.X), (int)(a.Y + y)));
-                points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
-                points.Add(new Point((int)(-x + a.X), (int)(a.Y - y)));
+                points.Add(new Point((int)(x + a.X), (int)(a.Y + y), rColor, gColor, bColor));
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y + y), rColor, gColor, bColor));
+                points.Add(new Point((int)(x + a.X), (int)(a.Y - y), rColor, gColor, bColor));
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y - y), rColor, gColor, bColor));
             }
             x = 0;
             y = Radius;
-            points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
+            points.Add(new Point((int)(x + a.X), (int)(a.Y - y), rColor, gColor, bColor));
             int dE = 3;
             int dSE = 5 - 2 * Radius;
             int d = 1 - Radius;
@@ -479,10 +496,10 @@ namespace Shape_Drawer
                     y--;
                 }
                 x++;
-                points.Add(new Point((int)(x + a.X), (int)(a.Y + y)));
-                points.Add(new Point((int)(-x + a.X), (int)(a.Y + y)));
-                points.Add(new Point((int)(x + a.X), (int)(a.Y - y)));
-                points.Add(new Point((int)(-x + a.X), (int)(a.Y - y)));
+                points.Add(new Point((int)(x + a.X), (int)(a.Y + y), rColor, gColor, bColor));
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y + y), rColor, gColor, bColor));
+                points.Add(new Point((int)(x + a.X), (int)(a.Y - y), rColor, gColor, bColor));
+                points.Add(new Point((int)(-x + a.X), (int)(a.Y - y), rColor, gColor, bColor));
             }
         }
     }
@@ -493,7 +510,12 @@ namespace Shape_Drawer
 
         protected List<List<EdgeInBucket>> edgeTable = new List<List<EdgeInBucket>>();
         protected List<EdgeInBucket> activeEdgeTable = new List<EdgeInBucket>();
-        public Polygon(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B)
+
+        bool filled = false;
+        byte RFill;
+        byte GFill;
+        byte BFill;
+        public Polygon(Point a, Point b, byte R, byte G, byte B, List<Point> polygonPoints) : base(a, b, R, G, B)
         {
             this.polygonPoints = new List<Point>(polygonPoints);
             polygonLines = new List<SymmetricLine>();
@@ -513,14 +535,20 @@ namespace Shape_Drawer
                 line.GetPoints();
             }
             FillEdgeTable();
-            FillPolygon(0, 0, 0);
+            if(filled)
+            FillPolygon(RFill, GFill, BFill);
         }
         public override bool HitDetection(Point a)
         {
             foreach (var line in polygonLines)
             {
-                if (line.points.Contains(a))
-                    return true;
+                foreach(var point in line.points)
+                {
+                    if (point.X == a.X && point.Y == a.Y)
+                        return true;
+                }
+               // if (line.points.Contains(new Point(a.X, a.Y, rColor, gColor, bColor)))
+                 //   return true;
 
             }
             return false;
@@ -538,7 +566,7 @@ namespace Shape_Drawer
         {
             for (int i = 0; i < polygonPoints.Count; i++)
             {
-                polygonPoints[i] = new Point(polygonPoints[i].X + p.X, polygonPoints[i].Y + p.Y);
+                polygonPoints[i] = new Point(polygonPoints[i].X + p.X, polygonPoints[i].Y + p.Y, rColor, gColor, bColor);
             }
             polygonLines.Clear();
             gotPoints = false;
@@ -552,7 +580,7 @@ namespace Shape_Drawer
 
             for (int i = 0; i < lineCount; i++)
             {
-                clipLine(new Point(tempLines[i].a.X, tempLines[i].a.Y), new Point(tempLines[i].b.X, tempLines[i].b.Y), rect);
+                clipLine(new Point(tempLines[i].a.X, tempLines[i].a.Y, rColor, gColor, bColor), new Point(tempLines[i].b.X, tempLines[i].b.Y, rColor, gColor, bColor), rect);
                 //LiangBarsky(new Point(polygonLines[i].a.X, polygonLines[i].a.Y), new Point(polygonLines[i].b.X, polygonLines[i].b.Y), rect);
             }
         }
@@ -790,14 +818,36 @@ namespace Shape_Drawer
 
 
         }
-        private void DrawLinesBetweenPoints(int Y)
+        private void DrawLinesBetweenPoints(int Y, byte _R,byte _G, byte _B)
         {
 
             for (int i = 0; i < activeEdgeTable.Count-1; i += 2)
             {
-
-                polygonLines.Add(new SymmetricLine(new Point((int)activeEdgeTable[i].xmin, Y), new Point((int)activeEdgeTable[i + 1].xmin,Y), 100, gColor, bColor));
+                if ((int)activeEdgeTable[i].xmin == (int)activeEdgeTable[i + 1].xmin)
+                    continue;
+                polygonLines.Add(new SymmetricLine(new Point((int)activeEdgeTable[i].xmin+1, Y, _R, _G, _B), new Point((int)activeEdgeTable[i + 1].xmin+1,Y, _R, _G, _B), _R, _G, _B));
                 polygonLines[polygonLines.Count - 1].GetPoints();
+
+            }
+
+
+        }
+
+        private void DrawLinesBetweenPoints(int Y, BitmapData srcData, byte[] buffer)
+        {
+
+            for (int i = 0; i < activeEdgeTable.Count - 1; i += 2)
+            {
+                if ((int)activeEdgeTable[i].xmin == (int)activeEdgeTable[i + 1].xmin)
+                    continue;
+                // polygonLines.Add(new SymmetricLine(new Point((int)activeEdgeTable[i].xmin + 1, Y), new Point((int)activeEdgeTable[i + 1].xmin + 1, Y), _R, _G, _B));
+                // polygonLines[polygonLines.Count - 1].GetPoints();
+                for (int j = (int)activeEdgeTable[i].xmin + 1; j < (int)activeEdgeTable[i + 1].xmin + 1; j++)
+                {
+                    buffer[Y * srcData.Stride + j * 4] = (byte)bColor;
+                    buffer[Y * srcData.Stride + j * 4 + 1] = (byte)gColor;
+                    buffer[Y * srcData.Stride + j * 4 + 2] = (byte)rColor;
+                }
 
             }
 
@@ -821,23 +871,36 @@ namespace Shape_Drawer
 
 
         }
-        public override void FillPolygon(int R, int G, int B)
+        public override void FillPolygon(byte _R, byte _G, byte _B)
         {
+            filled = false;
+            
+            //if(!gotPoints)
+            GetPoints();
+            filled = true;
+            RFill = _R;
+            GFill = _G;
+            BFill = _B;
             (int smallestY, int indexOfY) = FindSmallestYInEdgeTable();
             activeEdgeTable.Clear();
-            int count = 200;
-            while ((activeEdgeTable.Count != 0 || edgeTable.Count != 0)&&count!=0)
+
+            while (activeEdgeTable.Count != 0 || edgeTable.Count != 0)
             {
                 indexOfY = FindIndexOfYInEdgeTable(smallestY);
                 if (indexOfY != -1)
                 {
+                    if (activeEdgeTable.Count != 0)
+                    {
+                         activeEdgeTable.AddRange(edgeTable[indexOfY]);
+                    }
+                    else
                     activeEdgeTable = new List<EdgeInBucket>(edgeTable[indexOfY]);
                     edgeTable.RemoveAt(indexOfY);
                 }
 
                 activeEdgeTable.Sort((edge1, edge2) => edge1.xmin.CompareTo(edge2.xmin));
 
-                DrawLinesBetweenPoints(smallestY);
+                DrawLinesBetweenPoints(smallestY,_R,_G,_B);
 
 
                 smallestY++;
@@ -848,20 +911,94 @@ namespace Shape_Drawer
                     activeEdgeTable[i] = new EdgeInBucket(activeEdgeTable[i].ymax, activeEdgeTable[i].xmin + activeEdgeTable[i].dxdy,  activeEdgeTable[i].ymin, activeEdgeTable[i].dxdy);
                 }
 
-                count--;
+           
             }
+           // gotPoints = false;
         }
+
+        public override Image FillPolygon(Image imgSource)
+        {
+            filled = false;
+
+            //if(!gotPoints)
+            GetPoints();
+            filled = true;
+
+
+
+            int width = imgSource.Width;
+            int height = imgSource.Height;
+            Bitmap newBitmap = (Bitmap)imgSource.Clone();
+            BitmapData srcData = newBitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            //hold the amount of bytes needed to represent the image's pixels
+            int bytes = srcData.Stride * srcData.Height;
+            byte[] buffer = new byte[bytes];
+            byte[] result = new byte[bytes];
+            //copy image data to the buffer
+            Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            newBitmap.UnlockBits(srcData);
+
+            
+           
+
+            
+
+            
+
+
+
+
+            (int smallestY, int indexOfY) = FindSmallestYInEdgeTable();
+            activeEdgeTable.Clear();
+
+            while (activeEdgeTable.Count != 0 || edgeTable.Count != 0)
+            {
+                indexOfY = FindIndexOfYInEdgeTable(smallestY);
+                if (indexOfY != -1)
+                {
+                    if (activeEdgeTable.Count != 0)
+                    {
+                        activeEdgeTable.AddRange(edgeTable[indexOfY]);
+                    }
+                    else
+                        activeEdgeTable = new List<EdgeInBucket>(edgeTable[indexOfY]);
+                    edgeTable.RemoveAt(indexOfY);
+                }
+
+                activeEdgeTable.Sort((edge1, edge2) => edge1.xmin.CompareTo(edge2.xmin));
+
+                DrawLinesBetweenPoints(smallestY, srcData,buffer);
+
+
+                smallestY++;
+
+                RemoveEdgesFromAET(smallestY);
+                for (int i = 0; i < activeEdgeTable.Count; i++)
+                {
+                    activeEdgeTable[i] = new EdgeInBucket(activeEdgeTable[i].ymax, activeEdgeTable[i].xmin + activeEdgeTable[i].dxdy, activeEdgeTable[i].ymin, activeEdgeTable[i].dxdy);
+                }
+
+
+            }
+            //create a new bitmap with changed pixel rgb values
+            Bitmap resImg = new Bitmap(width, height);
+            BitmapData resData = resImg.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(buffer, 0, resData.Scan0, bytes);
+            resImg.UnlockBits(resData);
+            return resImg;
+            // gotPoints = false;
         }
+    }
         internal class Rectangle : Polygon
         {
             public int top, bottom, left, right;
-            public Rectangle(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B, polygonPoints)
+            public Rectangle(Point a, Point b, byte R, byte G, byte B, List<Point> polygonPoints) : base(a, b, R, G, B, polygonPoints)
             {
                 this.polygonPoints.Clear();
                 this.polygonPoints.Add(a);
-                this.polygonPoints.Add(new Point(b.X, a.Y));
+                this.polygonPoints.Add(new Point(b.X, a.Y, rColor, gColor, bColor));
                 this.polygonPoints.Add(b);
-                this.polygonPoints.Add(new Point(a.X, b.Y));
+                this.polygonPoints.Add(new Point(a.X, b.Y, rColor, gColor, bColor));
                 if (a.X < b.X)
                 {
                     top = a.Y; bottom = b.Y; left = a.X; right = b.X;
@@ -903,15 +1040,15 @@ namespace Shape_Drawer
                 }
                 if (vertexHit)
                 {
-                    temp = new Point(polygonPoints[(index + 2) % 4].X, polygonPoints[(index + 2) % 4].Y);
+                    temp = new Point(polygonPoints[(index + 2) % 4].X, polygonPoints[(index + 2) % 4].Y, rColor, gColor, bColor);
                     polygonPoints.Clear();
                     polygonLines.Clear();
                     a = temp;
                     b = t;
                     this.polygonPoints.Add(temp);
-                    this.polygonPoints.Add(new Point(temp.X, t.Y));
+                    this.polygonPoints.Add(new Point(temp.X, t.Y, rColor, gColor, bColor));
                     this.polygonPoints.Add(t);
-                    this.polygonPoints.Add(new Point(t.X, temp.Y));
+                    this.polygonPoints.Add(new Point(t.X, temp.Y, rColor, gColor, bColor));
 
                 }
                 else
@@ -935,7 +1072,7 @@ namespace Shape_Drawer
                             {
                                 if (polygonLines[index].points.Contains(polygonPoints[i]))
                                 {
-                                    polygonPoints[i] = new Point(t.X, polygonPoints[i].Y);
+                                    polygonPoints[i] = new Point(t.X, polygonPoints[i].Y, rColor, gColor, bColor);
                                 }
                             }
 
@@ -946,7 +1083,7 @@ namespace Shape_Drawer
                             {
                                 if (polygonLines[index].points.Contains(polygonPoints[i]))
                                 {
-                                    polygonPoints[i] = new Point(polygonPoints[i].X, t.Y);
+                                    polygonPoints[i] = new Point(polygonPoints[i].X, t.Y, rColor, gColor, bColor);
                                 }
                             }
 

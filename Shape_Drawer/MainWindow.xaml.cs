@@ -26,14 +26,15 @@ namespace Shape_Drawer
         Rectangle,
         EditShape,
         ClipRect,
+        FillColor,
     }
     public partial class MainWindow : Window
     {
         Point a;
         Point b;
-        int R = 0;
-        int G = 0;
-        int B = 0;
+        byte R = 0;
+        byte G = 0;
+        byte B = 0;
         int Radius = 0;
         int howThicc = 1;
         System.Windows.Point changePositionA;
@@ -131,11 +132,11 @@ namespace Shape_Drawer
         }
         private void ChangePosition()
         {
-            Point difference = new Point((int)(b.X - a.X), (int)(b.Y - a.Y));
+            Point difference = new Point((int)(b.X - a.X), (int)(b.Y - a.Y), R, G,B);
             foreach (var shape in shapes)
             {
                 shape.gotPoints = false;
-                if (shape.HitDetection(new Point((int)a.X, (int)a.Y)))
+                if (shape.HitDetection(new Point((int)a.X, (int)a.Y,R,G,B)))
                 {
                     shape.TransformPoints(difference);
                 }
@@ -176,7 +177,7 @@ namespace Shape_Drawer
             double pixelHeight = backgroundImage.Source.Height;
             double x = pixelWidth * p.X / backgroundImage.ActualWidth;
             double y = pixelHeight * p.Y / backgroundImage.ActualHeight;
-            shapeClicked(new Point((int)x, (int)y));
+            shapeClicked(new Point((int)x, (int)y,R,G,B));
             if (mode != Mode.None)
             {
 
@@ -196,32 +197,50 @@ namespace Shape_Drawer
                             return;
                         }
                     }
-                    polygonPoints.Add(new Point((int)x, (int)y));
+                    polygonPoints.Add(new Point((int)x, (int)y,R,G,B));
                 }
                 
                 if (mode == Mode.Select)
                 {
                     foreach (var shape in shapes)
                     {
-                        if (shape.points.Contains(new Point((int)x, (int)y)))
+                        foreach(var point in shape.points) 
                         {
-                            shape.Thicc(howThicc);
-                            shape.ChangeColor(R, G, B);
-                            shape.ChangeRadius(Radius);
+                            if (point.X == (int)x && point.Y == (int)y)
+                            {
+                                shape.Thicc(howThicc);
+                                shape.ChangeColor(R, G, B);
+                                shape.ChangeRadius(Radius);
+                                break;
+                            }
 
                         }
+                       
                     }
                     DrawShapes();
                     return;
                 }
+                if (mode == Mode.FillColor)
+                {
+                    foreach(var shape in shapes)
+                    {
+                        if (shape.HitDetection(new Point((int)x, (int)y,R,G,B)))
+                        {
+                            shape.FillPolygon(R, G, B);
+                            break;
+                        }
+
+                    }
+                    DrawShapes();
+                }
                 if (!isASet)
                 {
-                    a = new Point((int)x, (int)y);
+                    a = new Point((int)x, (int)y,R,G,B);
                     isASet = true;
                 }
                 else if (!isBSet)
                 {
-                    b = new Point((int)x, (int)y);
+                    b = new Point((int)x, (int)y,R,G,B);
                     isBSet = true;
                 }
                 if (isASet && isBSet)
@@ -324,18 +343,27 @@ namespace Shape_Drawer
         }
         private void R_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!Int32.TryParse(RTextBox.Text, out R))
+            int result;
+            if (!Int32.TryParse(RTextBox.Text, out result))
                 R = 0;
+            else
+                R = (byte)result;
         }
         private void G_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!Int32.TryParse(GTextBox.Text, out G))
+            int result;
+            if (!Int32.TryParse(GTextBox.Text, out result))
                 G = 0;
+            else
+                G = (byte)result;
         }
         private void B_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!Int32.TryParse(BTextBox.Text, out B))
+            int result;
+            if (!Int32.TryParse(BTextBox.Text, out result))
                 B = 0;
+            else
+                B = (byte)result;
         }
         private void Radius_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -378,6 +406,11 @@ namespace Shape_Drawer
         private void ClipButton_Click(object sender, RoutedEventArgs e)
         {
             mode = Mode.ClipRect;
+        }
+
+        private void FillColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            mode=Mode.FillColor;
         }
     }
 }
