@@ -17,11 +17,13 @@ namespace Shape_Drawer
     public struct EdgeInBucket
     {
         public int ymax;
-        public int xmin;
+        public float xmin;
+        public int ymin;
         public float dxdy;
-        public EdgeInBucket(int a, int b, float _dxdy)
+        public EdgeInBucket(int a, float b, int c, float _dxdy)
         {
             ymax = a;
+            ymin = c;
             xmin = b;
             dxdy = _dxdy;
         }
@@ -301,9 +303,11 @@ namespace Shape_Drawer
         {
             points.Clear();
             gotPoints = true;
+            //bool swapped = false;
             if (a.X > b.X)
             {
                 (b, a) = (a, b);
+                //swapped = true;
             }
             int dx = Math.Abs((int)(b.X - a.X));
             int dy = Math.Abs((int)(b.Y - a.Y));
@@ -411,6 +415,7 @@ namespace Shape_Drawer
 
                 points.Add(new Point(x, y));
             }
+            
         }
     }
     internal class MidpointCircle : ShapeDrawerConcrete
@@ -699,7 +704,7 @@ namespace Shape_Drawer
             {
                 foreach (var edgeInBucket in bucket)
                 {
-                    if (edgeInBucket.ymax == Y)
+                    if (edgeInBucket.ymin == Y)
                         return edgeTable.IndexOf(bucket);
                 }
 
@@ -712,31 +717,34 @@ namespace Shape_Drawer
         {
             int yMax = 0;
             int xMin = 0;
+            int yMin = 0;
             float dxdy = 0;
 
             foreach (var line in polygonLines)
             {
-                dxdy = (float)Math.Abs(a.X - b.X) / (float)Math.Abs(a.Y - b.Y);
+                dxdy = (float)(line.a.X - line.b.X) / (float)(line.a.Y - line.b.Y);
                 if (line.a.Y > line.b.Y)
                 {
                     yMax = line.a.Y;
+                    yMin = line.b.Y;
                     xMin = line.b.X;
 
                 }
                 else
                 {
                     yMax = line.b.Y;
+                    yMin = line.a.Y;
                     xMin = line.a.X;
                 }
-                int indexOfBucket = CheckIfBucketExists(yMax);
+                int indexOfBucket = CheckIfBucketExists(yMin);
                 if (indexOfBucket != -1)
                 {
-                    edgeTable[indexOfBucket].Add(new EdgeInBucket(yMax, xMin, dxdy));
+                    edgeTable[indexOfBucket].Add(new EdgeInBucket(yMax, xMin,yMin, dxdy));
                 }
                 else
                 {
                     edgeTable.Add(new List<EdgeInBucket>());
-                    edgeTable[edgeTable.Count - 1].Add(new EdgeInBucket(yMax, xMin, dxdy));
+                    edgeTable[edgeTable.Count - 1].Add(new EdgeInBucket(yMax, xMin,yMin, dxdy));
 
                 }
 
@@ -747,16 +755,16 @@ namespace Shape_Drawer
 
         private (int, int) FindSmallestYInEdgeTable()
         {
-            int smallesty = edgeTable[0][0].ymax;
+            int smallesty = edgeTable[0][0].ymin;
             int indexOfSmallestY = 0;
 
             foreach (var bucket in edgeTable)
             {
                 foreach (var edgeInBucket in bucket)
                 {
-                    if (edgeInBucket.ymax < smallesty)
+                    if (edgeInBucket.ymin < smallesty)
                     {
-                        smallesty = edgeInBucket.ymax;
+                        smallesty = edgeInBucket.ymin;
                         indexOfSmallestY = edgeTable.IndexOf(bucket);
                     }
 
@@ -771,7 +779,7 @@ namespace Shape_Drawer
             {
                 foreach (var edgeInBucket in bucket)
                 {
-                    if (edgeInBucket.ymax == Y)
+                    if (edgeInBucket.ymin == Y)
                     {
                         return edgeTable.IndexOf(bucket);
                     }
@@ -782,13 +790,13 @@ namespace Shape_Drawer
 
 
         }
-        private void DrawLinesBetweenPoints()
+        private void DrawLinesBetweenPoints(int Y)
         {
 
             for (int i = 0; i < activeEdgeTable.Count-1; i += 2)
             {
 
-                polygonLines.Add(new SymmetricLine(new Point(activeEdgeTable[i].xmin, activeEdgeTable[i].ymax), new Point(activeEdgeTable[i + 1].xmin, activeEdgeTable[i + 1].ymax), 100, gColor, bColor));
+                polygonLines.Add(new SymmetricLine(new Point((int)activeEdgeTable[i].xmin, Y), new Point((int)activeEdgeTable[i + 1].xmin,Y), 100, gColor, bColor));
                 polygonLines[polygonLines.Count - 1].GetPoints();
 
             }
@@ -829,7 +837,7 @@ namespace Shape_Drawer
 
                 activeEdgeTable.Sort((edge1, edge2) => edge1.xmin.CompareTo(edge2.xmin));
 
-                DrawLinesBetweenPoints();
+                DrawLinesBetweenPoints(smallestY);
 
 
                 smallestY++;
@@ -837,7 +845,7 @@ namespace Shape_Drawer
                 RemoveEdgesFromAET(smallestY);
                 for (int i = 0; i < activeEdgeTable.Count; i++)
                 {
-                    activeEdgeTable[i] = new EdgeInBucket(activeEdgeTable[i].xmin + (int)activeEdgeTable[i].dxdy, activeEdgeTable[i].ymax, activeEdgeTable[i].dxdy);
+                    activeEdgeTable[i] = new EdgeInBucket(activeEdgeTable[i].ymax, activeEdgeTable[i].xmin + activeEdgeTable[i].dxdy,  activeEdgeTable[i].ymin, activeEdgeTable[i].dxdy);
                 }
 
                 count--;
