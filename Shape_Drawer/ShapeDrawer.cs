@@ -14,6 +14,19 @@ namespace Shape_Drawer
             X = a; Y = b;
         }
     }
+    public struct EdgeInBucket
+    {
+        public int ymax;
+        public int xmin;
+        public float dxdy;
+        public EdgeInBucket(int a, int b, float _dxdy)
+        {
+            ymax = a;
+            xmin = b;
+            dxdy = _dxdy;
+        }
+
+    }
     internal abstract class ShapeDrawer
     {
         public List<Point> points = new List<Point>();
@@ -28,8 +41,8 @@ namespace Shape_Drawer
             rColor = R;
             gColor = G;
             bColor = B;
-            this.a = new Point(a.X,a.Y);
-            this.b = new Point(b.X,b.Y);
+            this.a = new Point(a.X, a.Y);
+            this.b = new Point(b.X, b.Y);
         }
         abstract public Image Draw(Image imgSource);
         abstract public void GetPoints();
@@ -42,6 +55,8 @@ namespace Shape_Drawer
         abstract public void ThickenVertices();
         abstract public void ChangeSize(Point a, Point t);
         abstract public void ClipRect(Rectangle rect);
+
+        abstract public void FillPolygon(int R, int G, int B);
     }
     internal class ShapeDrawerConcrete : ShapeDrawer
     {
@@ -63,12 +78,12 @@ namespace Shape_Drawer
 
         public override void ChangeSize(Point a, Point t)
         {
-            
+
         }
 
         public override void ClipRect(Rectangle rect)
         {
-       
+
         }
 
         public override Image Draw(Image imgSource)
@@ -85,7 +100,7 @@ namespace Shape_Drawer
             Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
             newBitmap.UnlockBits(srcData);
 
-            foreach(var point in points)
+            foreach (var point in points)
             {
                 buffer[point.Y * srcData.Stride + point.X * 4] = (byte)bColor;
                 buffer[point.Y * srcData.Stride + point.X * 4 + 1] = (byte)gColor;
@@ -100,6 +115,11 @@ namespace Shape_Drawer
             resImg.UnlockBits(resData);
             return resImg;
         }
+
+        public override void FillPolygon(int R, int G, int B)
+        {
+        }
+
         public override void GetPoints()
         {
         }
@@ -115,16 +135,16 @@ namespace Shape_Drawer
 
         public override void ThickenVertices()
         {
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 points.Add(new Point(a.X + i, a.Y + i));
                 points.Add(new Point(a.X - i, a.Y - i));
 
-                points.Add(new Point(a.X  , a.Y + i));
+                points.Add(new Point(a.X, a.Y + i));
                 points.Add(new Point(a.X, a.Y - i));
 
-                points.Add(new Point(a.X + i, a.Y ));
-                points.Add(new Point(a.X - i, a.Y ));
+                points.Add(new Point(a.X + i, a.Y));
+                points.Add(new Point(a.X - i, a.Y));
 
 
 
@@ -133,12 +153,12 @@ namespace Shape_Drawer
 
 
 
-                points.Add(new Point(b.X , b.Y + i));
-                points.Add(new Point(b.X , b.Y - i));
+                points.Add(new Point(b.X, b.Y + i));
+                points.Add(new Point(b.X, b.Y - i));
 
 
-                points.Add(new Point(b.X + i, b.Y ));
-                points.Add(new Point(b.X - i, b.Y ));
+                points.Add(new Point(b.X + i, b.Y));
+                points.Add(new Point(b.X - i, b.Y));
 
             }
         }
@@ -150,7 +170,7 @@ namespace Shape_Drawer
             a = new Point(a.X + p.X, a.Y + p.Y);
             b = new Point(b.X + p.X, b.Y + p.Y);
         }
-        
+
     }
     internal class SymmetricLine : ShapeDrawerConcrete
     {
@@ -207,8 +227,8 @@ namespace Shape_Drawer
                           // if (cov > 0)
                           // {
                           // putPixel(x, y, lerp(BKG_COLOR, LINE_COLOR, cov));
-            //}
-            //create a new bitmap with changed pixel rgb values
+                          //}
+                          //create a new bitmap with changed pixel rgb values
             Bitmap resImg = new Bitmap(width, height);
             BitmapData resData = resImg.LockBits(new System.Drawing.Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
             Marshal.Copy(buffer, 0, resData.Scan0, bytes);
@@ -336,59 +356,59 @@ namespace Shape_Drawer
             }
 
 
-            while (x < (int)b.X&&x>=(int)a.X)
+            while (x < (int)b.X && x >= (int)a.X)
             {
-                
-               
-                    if (a.X < b.X)
+
+
+                if (a.X < b.X)
+                {
+                    x++;
+                    if (a.Y < b.Y)
                     {
-                        x++;
-                        if (a.Y < b.Y)
+                        if (d < 0)
+                            d = d + dy;
+                        else if (dy != 0)
                         {
-                            if (d < 0)
-                                d = d + dy;
-                            else if(dy != 0)
-                            {
-                                d += (dy - dx);
-                                y++;
-                            }
-                        }
-                        else if (a.Y > b.Y)
-                        {
-                            if (d < 0)
-                                d = d + dy;
-                            else if (dy != 0)
-                            {
-                                d += (dy - dx);
-                                y--;
-                            }
+                            d += (dy - dx);
+                            y++;
                         }
                     }
-                    else
+                    else if (a.Y > b.Y)
                     {
-                        x--;
-                        if (a.Y < b.Y)
+                        if (d < 0)
+                            d = d + dy;
+                        else if (dy != 0)
                         {
-                            if (d < 0)
-                                d = d + dy;
-                            else if (dy != 0)
-                            {
-                                d += (dy + dx);
-                                y++;
-                            }
-                        }
-                        else if (a.Y > b.Y)
-                        {
-                            if (d > 0)
-                                d = d + dy;
-                            else if (dy != 0)
-                            {
-                                d += (dy + dx);
-                                y--;
-                            }
+                            d += (dy - dx);
+                            y--;
                         }
                     }
-                
+                }
+                else
+                {
+                    x--;
+                    if (a.Y < b.Y)
+                    {
+                        if (d < 0)
+                            d = d + dy;
+                        else if (dy != 0)
+                        {
+                            d += (dy + dx);
+                            y++;
+                        }
+                    }
+                    else if (a.Y > b.Y)
+                    {
+                        if (d > 0)
+                            d = d + dy;
+                        else if (dy != 0)
+                        {
+                            d += (dy + dx);
+                            y--;
+                        }
+                    }
+                }
+
                 points.Add(new Point(x, y));
             }
         }
@@ -465,6 +485,9 @@ namespace Shape_Drawer
     {
         protected List<Point> polygonPoints;
         protected List<SymmetricLine> polygonLines;
+
+        protected List<List<EdgeInBucket>> edgeTable = new List<List<EdgeInBucket>>();
+        protected List<EdgeInBucket> activeEdgeTable = new List<EdgeInBucket>();
         public Polygon(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B)
         {
             this.polygonPoints = new List<Point>(polygonPoints);
@@ -484,6 +507,8 @@ namespace Shape_Drawer
             {
                 line.GetPoints();
             }
+            FillEdgeTable();
+            FillPolygon(0, 0, 0);
         }
         public override bool HitDetection(Point a)
         {
@@ -578,7 +603,7 @@ namespace Shape_Drawer
             return true;
         }
 
-        int clipTest(float p, float q,  ref float tl, ref float t2)
+        int clipTest(float p, float q, ref float tl, ref float t2)
         {
             float r;
             int retVal = 1;
@@ -609,7 +634,7 @@ namespace Shape_Drawer
                 if (r < tl)
                     retVal = 0;
 
-                else if(r<t2)
+                else if (r < t2)
                     t2 = r;
             }
 
@@ -623,24 +648,24 @@ namespace Shape_Drawer
             return (retVal);
         }
 
-        void clipLine(Point p1, Point p2,Rectangle rect)
+        void clipLine(Point p1, Point p2, Rectangle rect)
         {
             float t1 = 0, t2 = 1, dx = p2.X - p1.X, dy;
 
             // inside test wrt left edge
-            if (clipTest(-dx, p1.X - rect.a.X ,ref t1,ref t2)==1)
+            if (clipTest(-dx, p1.X - rect.a.X, ref t1, ref t2) == 1)
 
                 // inside test wrt right edge 
-                if (clipTest(dx, rect.b.X - p1.X, ref t1, ref t2)==1)
+                if (clipTest(dx, rect.b.X - p1.X, ref t1, ref t2) == 1)
 
                 {
                     dy = p2.Y - p1.Y;
 
                     // inside test wrt bottom edge 
-                    if (clipTest(-dy, p1.Y - rect.a.Y, ref t1, ref t2)==1)
+                    if (clipTest(-dy, p1.Y - rect.a.Y, ref t1, ref t2) == 1)
 
                         // inside test wrt top edge 
-                        if (clipTest(dy,rect.b.Y - p1.Y, ref t1, ref t2)==1)
+                        if (clipTest(dy, rect.b.Y - p1.Y, ref t1, ref t2) == 1)
                         {
 
                             if (t2 < 1.0)
@@ -655,177 +680,329 @@ namespace Shape_Drawer
                                 p1.Y += (int)(t1 * dy);
                             }
 
-                           // lineDDA(ROUND(p1.x), ROUND(p1.y), ROUND(p2.x), ROUND(p2.y));
+                            // lineDDA(ROUND(p1.x), ROUND(p1.y), ROUND(p2.x), ROUND(p2.y));
                             polygonLines.Add(new SymmetricLine(p1, p2, 200, gColor, bColor));
                         }
                 }
             //points.Clear();
-            foreach(var line in polygonLines)
-            {
-                line.GetPoints();
-            }
-            //gotPoints = false;
-                    
-        }
-
-    }
-    internal class Rectangle : Polygon
-    {
-        public int top, bottom, left, right;
-        public Rectangle(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B, polygonPoints)
-        {
-            this.polygonPoints.Clear();
-            this.polygonPoints.Add(a);
-            this.polygonPoints.Add(new Point(b.X, a.Y));
-            this.polygonPoints.Add(b);
-            this.polygonPoints.Add(new Point(a.X, b.Y));
-            if(a.X<b.X)
-            {
-                top = a.Y; bottom = b.Y; left = a.X; right = b.X;
-            }
-            else {
-                top = b.Y; bottom = a.Y; left =b.X; right = a.X;
-            }
-            
-           //foreach(var point in this.polygonPoints)
-           // {
-           //     if (point.Y < top)
-           //         top = point.Y;
-           //     if (point.Y > bottom)
-           //         bottom = point.Y;
-           //     if (point.X < left)
-           //         left = point.X;
-           //     if (point.X > right)
-           //         right = point.X;
-           // }
-        }
-
-        public override void ChangeSize(Point p, Point t)
-        {
-            bool vertexHit=false;
-            bool lineHit = false;
-            int index = 0;
-            gotPoints = false;
-            Point temp;
-
-            foreach(var point in polygonPoints)
-            {
-                if (Math.Abs(point.X-p.X)<3&& Math.Abs(point.Y - p.Y) < 3)
-                {
-                    vertexHit=true;
-                    break;
-                }
-                index++;
-            }
-            if (vertexHit)
-            {
-                temp = new Point(polygonPoints[(index+2)%4].X, polygonPoints[(index + 2) % 4].Y);
-                polygonPoints.Clear();
-                polygonLines.Clear();
-                a = temp;
-                b = t;
-                this.polygonPoints.Add(temp);
-                this.polygonPoints.Add(new Point(temp.X, t.Y));
-                this.polygonPoints.Add(t);
-                this.polygonPoints.Add(new Point(t.X, temp.Y));
-
-            }
-            else
-            {
-                index = 0;
-                foreach(var line in polygonLines)
-                {
-                    if (line.HitDetection(p))
-                    {
-                        lineHit = true;
-                        break;
-                    }
-
-                    index++;
-                }
-                if (lineHit)
-                {
-                    if (Math.Abs(polygonLines[index].points[0].X- (polygonLines[index].points[polygonLines[index].points.Count - 1].X))<2)
-                    {
-                        for(int i = 0; i < polygonPoints.Count; i++)
-                        {
-                            if (polygonLines[index].points.Contains(polygonPoints[i]))
-                            {
-                                polygonPoints[i] = new Point(t.X, polygonPoints[i].Y);
-                            }
-                        }
-
-                    }
-                    else if(Math.Abs(polygonLines[index].points[0].Y -(polygonLines[index].points[polygonLines[index].points.Count - 1].Y))<2)
-                    {
-                        for (int i = 0; i < polygonPoints.Count; i++)
-                        {
-                            if (polygonLines[index].points.Contains(polygonPoints[i]))
-                            {
-                                polygonPoints[i] = new Point(polygonPoints[i].X, t.Y);
-                            }
-                        }
-
-                    }
-                    polygonLines.Clear();
-
-                }
-
-            }
-
-        }
-        public override void GetPoints()
-        {
-            points.Clear();
-            gotPoints = true;
-            for (int i = 0; i < polygonPoints.Count - 1; i++)
-            {
-                polygonLines.Add(new SymmetricLine(polygonPoints[i], polygonPoints[i + 1], rColor, gColor, bColor));
-            }
-            polygonLines.Add(new SymmetricLine(polygonPoints[polygonPoints.Count - 1], polygonPoints[0], rColor, gColor, bColor));
             foreach (var line in polygonLines)
             {
                 line.GetPoints();
             }
+            //gotPoints = false;
+
         }
-        public override void ThickenVertices()
+
+        private int CheckIfBucketExists(int Y)
         {
-            //foreach (var line in polygonLines)
-            //{
+            foreach (var bucket in edgeTable)
+            {
+                foreach (var edgeInBucket in bucket)
+                {
+                    if (edgeInBucket.ymax == Y)
+                        return edgeTable.IndexOf(bucket);
+                }
+
+            }
+            return -1;
 
 
-            //    for (int i = 0; i < 2; i++)
-            //    {
-                    
-            //        line.points.Add(new Point(a.X + i, a.Y + i));
-            //        line.points.Add(new Point(a.X - i, a.Y - i));
+        }
+        private void FillEdgeTable()
+        {
+            int yMax = 0;
+            int xMin = 0;
+            float dxdy = 0;
 
-            //        line.points.Add(new Point(a.X, a.Y + i));
-            //        line.points.Add(new Point(a.X, a.Y - i));
+            foreach (var line in polygonLines)
+            {
+                dxdy = (float)Math.Abs(a.X - b.X) / (float)Math.Abs(a.Y - b.Y);
+                if (line.a.Y > line.b.Y)
+                {
+                    yMax = line.a.Y;
+                    xMin = line.b.X;
 
-            //        line.points.Add(new Point(a.X + i, a.Y));
-            //        line.points.Add(new Point(a.X - i, a.Y));
+                }
+                else
+                {
+                    yMax = line.b.Y;
+                    xMin = line.a.X;
+                }
+                int indexOfBucket = CheckIfBucketExists(yMax);
+                if (indexOfBucket != -1)
+                {
+                    edgeTable[indexOfBucket].Add(new EdgeInBucket(yMax, xMin, dxdy));
+                }
+                else
+                {
+                    edgeTable.Add(new List<EdgeInBucket>());
+                    edgeTable[edgeTable.Count - 1].Add(new EdgeInBucket(yMax, xMin, dxdy));
+
+                }
+
+            }
 
 
-
-            //        line.points.Add(new Point(b.X + i, b.Y + i));
-            //        line.points.Add(new Point(b.X - i, b.Y - i));
-
-
-
-            //        line.points.Add(new Point(b.X, b.Y + i));
-            //        line.points.Add(new Point(b.X, b.Y - i));
-
-
-            //        line.points.Add(new Point(b.X + i, b.Y));
-            //        line.points.Add(new Point(b.X - i, b.Y));
-
-            //    }
-            //}
         }
 
+        private (int, int) FindSmallestYInEdgeTable()
+        {
+            int smallesty = edgeTable[0][0].ymax;
+            int indexOfSmallestY = 0;
 
+            foreach (var bucket in edgeTable)
+            {
+                foreach (var edgeInBucket in bucket)
+                {
+                    if (edgeInBucket.ymax < smallesty)
+                    {
+                        smallesty = edgeInBucket.ymax;
+                        indexOfSmallestY = edgeTable.IndexOf(bucket);
+                    }
+
+                }
+            }
+            return (smallesty, indexOfSmallestY);
+        }
+
+        private int FindIndexOfYInEdgeTable(int Y)
+        {
+            foreach (var bucket in edgeTable)
+            {
+                foreach (var edgeInBucket in bucket)
+                {
+                    if (edgeInBucket.ymax == Y)
+                    {
+                        return edgeTable.IndexOf(bucket);
+                    }
+
+                }
+            }
+            return -1;
+
+
+        }
+        private void DrawLinesBetweenPoints()
+        {
+
+            for (int i = 0; i < activeEdgeTable.Count-1; i += 2)
+            {
+
+                polygonLines.Add(new SymmetricLine(new Point(activeEdgeTable[i].xmin, activeEdgeTable[i].ymax), new Point(activeEdgeTable[i + 1].xmin, activeEdgeTable[i + 1].ymax), 100, gColor, bColor));
+                polygonLines[polygonLines.Count - 1].GetPoints();
+
+            }
+
+
+        }
+        private void RemoveEdgesFromAET(int Y)
+        {
+            for (int i = 0; i < activeEdgeTable.Count;)
+            {
+                if (activeEdgeTable[i].ymax == Y)
+                {
+                    activeEdgeTable.RemoveAt(i);
+                }
+                else
+                {
+                    i++;
+                }
+
+
+            }
+
+
+        }
+        public override void FillPolygon(int R, int G, int B)
+        {
+            (int smallestY, int indexOfY) = FindSmallestYInEdgeTable();
+            activeEdgeTable.Clear();
+            int count = 200;
+            while ((activeEdgeTable.Count != 0 || edgeTable.Count != 0)&&count!=0)
+            {
+                indexOfY = FindIndexOfYInEdgeTable(smallestY);
+                if (indexOfY != -1)
+                {
+                    activeEdgeTable = new List<EdgeInBucket>(edgeTable[indexOfY]);
+                    edgeTable.RemoveAt(indexOfY);
+                }
+
+                activeEdgeTable.Sort((edge1, edge2) => edge1.xmin.CompareTo(edge2.xmin));
+
+                DrawLinesBetweenPoints();
+
+
+                smallestY++;
+
+                RemoveEdgesFromAET(smallestY);
+                for (int i = 0; i < activeEdgeTable.Count; i++)
+                {
+                    activeEdgeTable[i] = new EdgeInBucket(activeEdgeTable[i].xmin + (int)activeEdgeTable[i].dxdy, activeEdgeTable[i].ymax, activeEdgeTable[i].dxdy);
+                }
+
+                count--;
+            }
+        }
+        }
+        internal class Rectangle : Polygon
+        {
+            public int top, bottom, left, right;
+            public Rectangle(Point a, Point b, int R, int G, int B, List<Point> polygonPoints) : base(a, b, R, G, B, polygonPoints)
+            {
+                this.polygonPoints.Clear();
+                this.polygonPoints.Add(a);
+                this.polygonPoints.Add(new Point(b.X, a.Y));
+                this.polygonPoints.Add(b);
+                this.polygonPoints.Add(new Point(a.X, b.Y));
+                if (a.X < b.X)
+                {
+                    top = a.Y; bottom = b.Y; left = a.X; right = b.X;
+                }
+                else
+                {
+                    top = b.Y; bottom = a.Y; left = b.X; right = a.X;
+                }
+
+                //foreach(var point in this.polygonPoints)
+                // {
+                //     if (point.Y < top)
+                //         top = point.Y;
+                //     if (point.Y > bottom)
+                //         bottom = point.Y;
+                //     if (point.X < left)
+                //         left = point.X;
+                //     if (point.X > right)
+                //         right = point.X;
+                // }
+            }
+
+            public override void ChangeSize(Point p, Point t)
+            {
+                bool vertexHit = false;
+                bool lineHit = false;
+                int index = 0;
+                gotPoints = false;
+                Point temp;
+
+                foreach (var point in polygonPoints)
+                {
+                    if (Math.Abs(point.X - p.X) < 3 && Math.Abs(point.Y - p.Y) < 3)
+                    {
+                        vertexHit = true;
+                        break;
+                    }
+                    index++;
+                }
+                if (vertexHit)
+                {
+                    temp = new Point(polygonPoints[(index + 2) % 4].X, polygonPoints[(index + 2) % 4].Y);
+                    polygonPoints.Clear();
+                    polygonLines.Clear();
+                    a = temp;
+                    b = t;
+                    this.polygonPoints.Add(temp);
+                    this.polygonPoints.Add(new Point(temp.X, t.Y));
+                    this.polygonPoints.Add(t);
+                    this.polygonPoints.Add(new Point(t.X, temp.Y));
+
+                }
+                else
+                {
+                    index = 0;
+                    foreach (var line in polygonLines)
+                    {
+                        if (line.HitDetection(p))
+                        {
+                            lineHit = true;
+                            break;
+                        }
+
+                        index++;
+                    }
+                    if (lineHit)
+                    {
+                        if (Math.Abs(polygonLines[index].points[0].X - (polygonLines[index].points[polygonLines[index].points.Count - 1].X)) < 2)
+                        {
+                            for (int i = 0; i < polygonPoints.Count; i++)
+                            {
+                                if (polygonLines[index].points.Contains(polygonPoints[i]))
+                                {
+                                    polygonPoints[i] = new Point(t.X, polygonPoints[i].Y);
+                                }
+                            }
+
+                        }
+                        else if (Math.Abs(polygonLines[index].points[0].Y - (polygonLines[index].points[polygonLines[index].points.Count - 1].Y)) < 2)
+                        {
+                            for (int i = 0; i < polygonPoints.Count; i++)
+                            {
+                                if (polygonLines[index].points.Contains(polygonPoints[i]))
+                                {
+                                    polygonPoints[i] = new Point(polygonPoints[i].X, t.Y);
+                                }
+                            }
+
+                        }
+                        polygonLines.Clear();
+
+                    }
+
+                }
+
+            }
+            public override void GetPoints()
+            {
+                points.Clear();
+                gotPoints = true;
+                for (int i = 0; i < polygonPoints.Count - 1; i++)
+                {
+                    polygonLines.Add(new SymmetricLine(polygonPoints[i], polygonPoints[i + 1], rColor, gColor, bColor));
+                }
+                polygonLines.Add(new SymmetricLine(polygonPoints[polygonPoints.Count - 1], polygonPoints[0], rColor, gColor, bColor));
+                foreach (var line in polygonLines)
+                {
+                    line.GetPoints();
+                }
+            }
+            public override void ThickenVertices()
+            {
+                //foreach (var line in polygonLines)
+                //{
+
+
+                //    for (int i = 0; i < 2; i++)
+                //    {
+
+                //        line.points.Add(new Point(a.X + i, a.Y + i));
+                //        line.points.Add(new Point(a.X - i, a.Y - i));
+
+                //        line.points.Add(new Point(a.X, a.Y + i));
+                //        line.points.Add(new Point(a.X, a.Y - i));
+
+                //        line.points.Add(new Point(a.X + i, a.Y));
+                //        line.points.Add(new Point(a.X - i, a.Y));
+
+
+
+                //        line.points.Add(new Point(b.X + i, b.Y + i));
+                //        line.points.Add(new Point(b.X - i, b.Y - i));
+
+
+
+                //        line.points.Add(new Point(b.X, b.Y + i));
+                //        line.points.Add(new Point(b.X, b.Y - i));
+
+
+                //        line.points.Add(new Point(b.X + i, b.Y));
+                //        line.points.Add(new Point(b.X - i, b.Y));
+
+                //    }
+                //}
+            }
+
+
+
+        }
 
     }
 
-}
