@@ -111,9 +111,9 @@ namespace Shape_Drawer
 
             foreach (var point in points)
             {
-                buffer[point.Y * srcData.Stride + point.X * 4] = (byte)bColor;
-                buffer[point.Y * srcData.Stride + point.X * 4 + 1] = (byte)gColor;
-                buffer[point.Y * srcData.Stride + point.X * 4 + 2] = (byte)rColor;
+                buffer[point.Y * srcData.Stride + point.X * 4] = (byte)point.B;
+                buffer[point.Y * srcData.Stride + point.X * 4 + 1] = (byte)point.G;
+                buffer[point.Y * srcData.Stride + point.X * 4 + 2] = (byte)point.R;
 
             }
 
